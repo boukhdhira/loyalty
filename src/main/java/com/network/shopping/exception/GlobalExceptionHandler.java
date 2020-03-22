@@ -1,6 +1,7 @@
 package com.network.shopping.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +12,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings({"unchecked", "rawtypes"})
 @ControllerAdvice
 @Slf4j
-public class globalExceptionHandler extends ResponseEntityExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -26,7 +30,7 @@ public class globalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatus status,
             WebRequest request) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
@@ -52,6 +56,23 @@ public class globalExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError apiError =
                 new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
         return new ResponseEntity(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity handleConstraintViolationException(ConstraintViolationException constraintViolationException) {
+        Set<ConstraintViolation<?>> violations = constraintViolationException.getConstraintViolations();
+        String errorMessage = "";
+        Map<String, String> details = new HashMap<>();
+        if (!violations.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            violations.forEach(violation -> {
+                builder.append(" - " + violation.getMessage());
+                details.put(((PathImpl) violation.getPropertyPath()).getLeafNode().asString(), violation.getMessage());
+            });
+            errorMessage = builder.toString();
+        }
+        log.error("Invalid requested data : {} ", errorMessage);
+        return new ResponseEntity<>(new ApiError(HttpStatus.BAD_REQUEST, errorMessage, details), HttpStatus.BAD_REQUEST);
     }
 
 //    @ExceptionHandler(value
