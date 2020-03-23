@@ -33,7 +33,7 @@ class NotEmptyFieldsValidator implements ConstraintValidator<NotEmptyFields, Col
 
     @Override
     public boolean isValid(Collection<String> objects, ConstraintValidatorContext context) {
-        return objects.stream().allMatch(nef -> !isEmpty(nef));
+        return objects.isEmpty() || objects.stream().allMatch(nef -> !isEmpty(nef));
     }
 
 }

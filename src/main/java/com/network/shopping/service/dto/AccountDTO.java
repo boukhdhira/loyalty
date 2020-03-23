@@ -15,7 +15,6 @@ public class AccountDTO {
     Set<String> creditCards = new HashSet<>();
     Set<BeneficiaryDTO> beneficiaries = new HashSet<>();
     @NotBlank(message = "account number is mandatory")
-    @Size(max = 9)
     @Pattern(regexp = "^[0-9]{9}$", message = "account number must contain 9 digits")
     private String number;
     @NotBlank(message = "account name is mandatory")

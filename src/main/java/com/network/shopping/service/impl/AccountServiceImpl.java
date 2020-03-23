@@ -65,13 +65,21 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public void deleteAccount(String accountId) {
+        accountRepository.findOneByNumber(accountId).ifPresent(account -> {
+            accountRepository.delete(account);
+            log.debug("Deleted account: {}", account);
+        });
+    }
+
+    @Override
     public Page<AccountDTO> getAllAccounts(Pageable pageable) {
         return accountRepository.findAll(pageable).map(account -> accountMapper.toDto(account));
     }
 
     @Override
     public AccountDTO getUserAccountByNumber(String number) {
-        return accountRepository.findByNumber(number)
+        return accountRepository.findOneByNumber(number)
                 .map(account -> accountMapper.toDto(account))
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid account number"))
                 ;
@@ -79,7 +87,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDTO addAccount(AccountDTO accountDTO) {
-        if (accountRepository.findByNumber(accountDTO.getNumber()).isPresent()) {
+        if (accountRepository.findOneByNumber(accountDTO.getNumber()).isPresent()) {
             throw new IllegalArgumentException("Account number already exist !");
         }
         Set<String> cards = accountDTO.getCreditCards();
@@ -101,7 +109,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private Account retriveAccountDataById(String accountId) {
-        Optional<Account> accountOptional = accountRepository.findByNumber(accountId);
+        Optional<Account> accountOptional = accountRepository.findOneByNumber(accountId);
         if (!accountOptional.isPresent()) {
             throw new IllegalArgumentException("Invalid account number: " + accountId);
         }

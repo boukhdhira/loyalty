@@ -3,8 +3,9 @@ package com.network.shopping.web.rest;
 import com.network.shopping.service.AccountService;
 import com.network.shopping.service.dto.AccountDTO;
 import com.network.shopping.service.dto.BeneficiaryDTO;
+import com.network.shopping.service.utils.HeaderUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,8 +25,14 @@ import java.util.List;
 @Slf4j
 public class AccountController {
 
-    @Autowired
-    private AccountService accountService;
+    private final AccountService accountService;
+
+    @Value("${application.name}")
+    private String applicationName;
+
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @GetMapping
     public Page<AccountDTO> getAllAccounts(Pageable pageable) {
@@ -33,14 +40,14 @@ public class AccountController {
     }
 
     @GetMapping(value = "/{number}")
-    public ResponseEntity getAllAccounts(@PathVariable(name = "number") String number) {
+    public ResponseEntity retrieveAccountByNumber(@PathVariable(name = "number") String number) {
         log.debug("Request to retrieve account by number= {}", number);
         return ResponseEntity.ok(accountService.getUserAccountByNumber(number));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AccountDTO createAccount(@Valid @NotNull @RequestBody AccountDTO account) {
+    public AccountDTO registerAccount(@Valid @NotNull @RequestBody AccountDTO account) {
         log.debug("Request to create new account {} ", account);
         return accountService.addAccount(account);
     }
@@ -61,5 +68,20 @@ public class AccountController {
                                              @RequestBody String cardNumber) {
         log.debug("Request to add a credit card number={} to account number {} ", cardNumber, accountId);
         return accountService.addCreditCardToAccount(accountId, cardNumber);
+    }
+
+    /**
+     * {@code DELETE /accounts/:number} : delete the "number" account.
+     *
+     * @param number the login of the user to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/{accountId}")
+    // @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<Void> deleteAccount(@PathVariable(name = "accountId") String number) {
+        log.debug("REST request to delete account: {}", number);
+        accountService.deleteAccount(number);
+        return ResponseEntity.noContent().headers(HeaderUtil.createAlert(
+                applicationName, "accountManagement.deleted", number)).build();
     }
 }
