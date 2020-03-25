@@ -17,7 +17,7 @@ id serial primary key ,
 account_id integer references t_account(id) On delete cascade,
 name VARCHAR(50) NOT NULL,
 allocation_percentage numeric (5, 2) not null,
-savings numeric (5, 2) not null
+savings numeric (10, 2) not null
 );
 
 create table if not exists t_store (

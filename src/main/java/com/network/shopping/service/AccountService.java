@@ -19,5 +19,7 @@ public interface AccountService {
     AccountDTO addBeneficiariesToAccount(String accountId, List<BeneficiaryDTO> beneficiaryDTOS);
 
     AccountDTO addCreditCardToAccount(String accountId, String cardNumber);
+
+    void removeBeneficiary(String accountId, String beneficiaryName);
 }
 

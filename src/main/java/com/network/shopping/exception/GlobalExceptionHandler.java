@@ -2,6 +2,7 @@ package com.network.shopping.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.engine.path.PathImpl;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError apiError =
                 new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
         return new ResponseEntity(apiError, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public final ResponseEntity<Object> handlePreconditionFailedException(DataIntegrityViolationException ex, WebRequest request) {
+        log.error("Illegal requested argument: {} ", ex.getMessage());
+        ApiError apiError =
+                new ApiError(HttpStatus.CONFLICT, ex.getLocalizedMessage());
+        return new ResponseEntity(apiError, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
