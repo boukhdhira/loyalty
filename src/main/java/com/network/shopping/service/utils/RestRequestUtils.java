@@ -29,9 +29,9 @@ public final class RestRequestUtils {
      * assumed to be a child of the URL just received.
      * <p>
      * Suppose we have just received an incoming URL of, say,
-     * <code>http://localhost:8080/accounts</code> and <code>resourceId</code>
+     * <code>http://localhost:8080/ressources</code> and <code>resourceId</code>
      * is "12345". Then the URL of the new resource will be
-     * <code>http://localhost:8080/accounts/12345</code>.
+     * <code>http://localhost:8080/ressources/12345</code>.
      *
      * @param resourceId Is of the new resource.
      * @return

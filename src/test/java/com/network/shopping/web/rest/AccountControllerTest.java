@@ -3,6 +3,7 @@ package com.network.shopping.web.rest;
 import com.network.shopping.domain.Account;
 import com.network.shopping.repository.AccountRepository;
 import com.network.shopping.service.dto.AccountDTO;
+import com.network.shopping.service.dto.BeneficiaryDTO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.network.shopping.TestUtil.asJsonString;
+import static com.network.shopping.TestUtil.newHashSet;
 import static java.util.Collections.singleton;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -58,7 +60,7 @@ public class AccountControllerTest {
         return defaultAccount;
     }
 
-    // verify(repository, times(0)).save(any(Account.class));
+    // verify(repository, times(0)).save(any(Account.class)); --> Validation errors
     //  given(service.getAllEmployees()).willReturn(allEmployees) -> when ... mock service
 
     @Test
@@ -67,13 +69,13 @@ public class AccountControllerTest {
         AccountDTO account = new AccountDTO();
         account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
         account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
-        restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
+        this.restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                 .content(asJsonString(account))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
 
-        Account createdUser = repository.findOneByNumber(DEFAULT_FIRST_ACCOUNT_NUMBER).orElse(null);
+        Account createdUser = this.repository.findOneByNumber(DEFAULT_FIRST_ACCOUNT_NUMBER).orElse(null);
         assertNotNull(createdUser);
         Assertions.assertThat(createdUser.getNumber()).isEqualTo(DEFAULT_FIRST_ACCOUNT_NUMBER);
         Assertions.assertThat(createdUser.getName()).isEqualTo(DEFAULT_FIRST_ACCOUNT_NAME);
@@ -86,7 +88,7 @@ public class AccountControllerTest {
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void testGettingAllRegisteredAccounts() throws Exception {
-        restMockMvc.perform(get("/api/v1/accounts")
+        this.restMockMvc.perform(get("/api/v1/accounts")
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(2)))
@@ -96,13 +98,13 @@ public class AccountControllerTest {
     @Test
     @Transactional
     public void testDeleteAccountByValidId() throws Exception {
-        repository.saveAndFlush(createEntity());
-        int accountCountBefore = repository.findAll().size();
-        restMockMvc.perform(MockMvcRequestBuilders
+        this.repository.saveAndFlush(createEntity());
+        int accountCountBefore = this.repository.findAll().size();
+        this.restMockMvc.perform(MockMvcRequestBuilders
                 .delete("/api/v1/accounts/{accountId}", DEFAULT_FIRST_ACCOUNT_NUMBER)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        List<Account> emptyList = repository.findAll();
+        List<Account> emptyList = this.repository.findAll();
         assertThat(accountCountBefore, is(1));
         assertThat(emptyList, empty());
     }
@@ -115,7 +117,7 @@ public class AccountControllerTest {
         account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
         account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
 
-        restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
+        this.restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                 .content(asJsonString(account))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -133,7 +135,7 @@ public class AccountControllerTest {
         account.setNumber(OTHER_FIRST_ACCOUNT_NUMBER);
         account.setCreditCards(singleton(DEFAULT_CREDIT_CARD_NUMBER));
 
-        restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
+        this.restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                 .content(asJsonString(account))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -145,11 +147,11 @@ public class AccountControllerTest {
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void shouldRemoveAccountBeneficiaryByValidAccountIdAndBeneficiaryName() throws Exception {
 
-        restMockMvc.perform(delete("/api/v1/accounts/{accountId}/beneficiaries/{beneficiaryName}",
+        this.restMockMvc.perform(delete("/api/v1/accounts/{accountId}/beneficiaries/{beneficiaryName}",
                 DEFAULT_FIRST_ACCOUNT_NUMBER, DEFAULT_BENEFICIARY_NAME)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        Optional<Account> account = repository.findOneByNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
+        Optional<Account> account = this.repository.findOneByNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
         assertTrue(account.isPresent());
         //assertThat(account.map(b -> b.getBeneficiaries().size()).orElse(0), equalTo(1));
     }
@@ -160,7 +162,7 @@ public class AccountControllerTest {
         account.setName("");
         account.setNumber(OTHER_FIRST_ACCOUNT_NUMBER);
 
-        restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
+        this.restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                 .content(asJsonString(account))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -169,7 +171,7 @@ public class AccountControllerTest {
         AccountDTO secondAccount = new AccountDTO();
         secondAccount.setName(DEFAULT_FIRST_ACCOUNT_NAME);
 
-        restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
+        this.restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                 .content(asJsonString(account))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -179,7 +181,29 @@ public class AccountControllerTest {
         thirdAccount.setName(DEFAULT_FIRST_ACCOUNT_NAME);
         thirdAccount.setNumber(RandomStringUtils.random(5));
 
-        restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
+        this.restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
+                .content(asJsonString(account))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenBeneficiariesHasASumOfAllocationPercentageGreaterThen100() throws Exception {
+        BeneficiaryDTO beneficiary1 = new BeneficiaryDTO();
+        beneficiary1.setPercentage("80%");
+        beneficiary1.setName(randomAlphabetic(20));
+
+        BeneficiaryDTO beneficiary2 = new BeneficiaryDTO();
+        beneficiary2.setPercentage("40%");
+        beneficiary2.setName(randomAlphabetic(20));
+
+        AccountDTO account = new AccountDTO();
+        account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
+        account.setNumber(OTHER_FIRST_ACCOUNT_NUMBER);
+        account.setBeneficiaries(newHashSet(beneficiary1, beneficiary2));
+
+        this.restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                 .content(asJsonString(account))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
@@ -188,7 +212,7 @@ public class AccountControllerTest {
 
     @Test
     void shouldReturn404NotFoundWhenAccountIdIsNotReattachedToAnyAccount() throws Exception {
-        restMockMvc.perform(get("/api/v1/accounts/{accountId}", RandomStringUtils.random(9))
+        this.restMockMvc.perform(get("/api/v1/accounts/{accountId}", RandomStringUtils.random(9))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
@@ -197,9 +221,9 @@ public class AccountControllerTest {
     @Test
     @Transactional
     void shouldReturnAccountDetailsWhenAccountIdExist() throws Exception {
-        repository.save(createEntity());
+        this.repository.save(createEntity());
 
-        restMockMvc.perform(get("/api/v1/accounts/{accountId}", DEFAULT_FIRST_ACCOUNT_NUMBER)
+        this.restMockMvc.perform(get("/api/v1/accounts/{accountId}", DEFAULT_FIRST_ACCOUNT_NUMBER)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

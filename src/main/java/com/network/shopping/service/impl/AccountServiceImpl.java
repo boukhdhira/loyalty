@@ -1,5 +1,6 @@
 package com.network.shopping.service.impl;
 
+import com.network.shopping.common.Percentage;
 import com.network.shopping.domain.Account;
 import com.network.shopping.domain.Beneficiary;
 import com.network.shopping.domain.CreditCard;
@@ -19,11 +20,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
+import static com.network.shopping.common.Percentage.oneHundred;
+import static com.network.shopping.common.Percentage.zero;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
 import static org.springframework.util.CollectionUtils.isEmpty;
@@ -69,50 +69,86 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void deleteAccount(String accountId) {
-        accountRepository.findOneByNumber(accountId).ifPresent(account -> {
-            accountRepository.delete(account);
+        this.accountRepository.findOneByNumber(accountId).ifPresent(account -> {
+            this.accountRepository.delete(account);
             log.debug("Deleted account: {}", account);
         });
     }
 
     @Override
     public Page<AccountDTO> getAllAccounts(Pageable pageable) {
-        return accountRepository.findAll(pageable).map(account -> accountMapper.toDto(account));
+        return this.accountRepository.findAll(pageable).map(account -> this.accountMapper.toDto(account));
     }
 
     @Override
     public AccountDTO getUserAccountByNumber(String number) {
-        return accountRepository.findOneByNumber(number)
-                .map(account -> accountMapper.toDto(account))
+        return this.accountRepository.findOneByNumber(number)
+                .map(account -> this.accountMapper.toDto(account))
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid account number"))
                 ;
     }
 
     @Override
     public AccountDTO addAccount(AccountDTO accountDTO) {
-        if (accountRepository.findOneByNumber(accountDTO.getNumber()).isPresent()) {
+        if (!isEmpty(accountDTO.getBeneficiaries())) {
+            this.validateBeneficiariesPercentage(accountDTO);
+        }
+
+        if (this.accountRepository.findOneByNumber(accountDTO.getNumber()).isPresent()) {
             throw new DataIntegrityViolationException("Account number already exist !");
         }
         Set<String> cards = accountDTO.getCreditCards();
-        if (!isEmpty(cards) && cards.stream().anyMatch(number -> accountRepository.findByCreditCardsNumber(number).isPresent())) {
+        if (!isEmpty(cards) && cards.stream().anyMatch(number -> this.accountRepository.findByCreditCardsNumber(number).isPresent())) {
             throw new DataIntegrityViolationException("Credit card is already used for an other account !");
         }
-        accountRepository.saveAndFlush(accountMapper.toEntity(accountDTO));
+
+        if (!isEmpty(accountDTO.getBeneficiaries()) && accountDTO.getBeneficiaries().size() == 1) {
+            accountDTO.getBeneficiaries().stream().findFirst().ifPresent(p -> p.setPercentage(Percentage.oneHundred().toString()));
+        }
+
+        this.accountRepository.saveAndFlush(this.accountMapper.toEntity(accountDTO));
         return accountDTO;
+    }
+
+    private void validateBeneficiariesPercentage(AccountDTO account) {
+        this.computeAllocationPercentages(new ArrayList<>(account.getBeneficiaries()));
     }
 
     @Override
     public AccountDTO addBeneficiariesToAccount(String accountId, List<BeneficiaryDTO> beneficiaryDTOS) {
-        Account accountData = retrieveAccountDataById(accountId);
+        Account accountData = this.retrieveAccountDataById(accountId);
+        this.computeBeneficiariesNewAllocationsPercentage(accountData, beneficiaryDTOS);
         accountData.getBeneficiaries().addAll(beneficiaryDTOS.stream()
                 .filter(Objects::nonNull)
-                .map(dto -> beneficiaryMapper.toEntity(dto))
+                .map(dto -> this.beneficiaryMapper.toEntity(dto))
                 .collect(toSet()));
-        return accountMapper.toDto(accountRepository.save(accountData));
+        return this.accountMapper.toDto(this.accountRepository.save(accountData));
+    }
+
+    private void computeBeneficiariesNewAllocationsPercentage(Account account, List<BeneficiaryDTO> beneficiaryDTOS) {
+        if (isEmpty(account.getBeneficiaries())) {
+            log.info("Empty beneficiaries list ...  attempts to add {} beneficiaries ", beneficiaryDTOS.size());
+            if (beneficiaryDTOS.size() == 1 && !beneficiaryDTOS.get(0).getPercentage().equals(oneHundred().toString())) {
+                beneficiaryDTOS.get(0).setPercentage(oneHundred().toString());
+            }
+            return;
+        }
+        Percentage totalPercentage = this.computeAllocationPercentages(beneficiaryDTOS);
+        BigDecimal remainingPercentage = BigDecimal.ONE.subtract(totalPercentage.asBigDecimal());
+        account.getBeneficiaries()
+                .forEach(person -> person.setAllocationPercentage(person.getAllocationPercentage().multiply(remainingPercentage)));
+    }
+
+    private Percentage computeAllocationPercentages(List<BeneficiaryDTO> beneficiaryDTOS) {
+        return beneficiaryDTOS
+                .stream()
+                .filter(Objects::nonNull)
+                .map(beneficiaryDTO -> Percentage.of(beneficiaryDTO.getPercentage()))
+                .reduce(zero(), Percentage::add);
     }
 
     private Account retrieveAccountDataById(String accountId) {
-        Optional<Account> accountOptional = accountRepository.findOneByNumber(accountId);
+        Optional<Account> accountOptional = this.accountRepository.findOneByNumber(accountId);
         if (!accountOptional.isPresent()) {
             throw new IllegalArgumentException("Invalid account number: " + accountId);
         }
@@ -121,7 +157,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountDTO addCreditCardToAccount(String accountId, String cardNumber) {
-        Account account = retrieveAccountDataById(accountId);
+        Account account = this.retrieveAccountDataById(accountId);
         if (account.getCreditCards().stream().anyMatch(card -> cardNumber.equals(card.getNumber()))) {
             throw new IllegalArgumentException(
                     format("Credit card number %s is already used for account %s", cardNumber, accountId));
@@ -129,12 +165,12 @@ public class AccountServiceImpl implements AccountService {
         CreditCard card = new CreditCard();
         card.setNumber(cardNumber);
         account.getCreditCards().add(card);
-        return accountMapper.toDto(accountRepository.save(account));
+        return this.accountMapper.toDto(this.accountRepository.save(account));
     }
 
     @Override
     public void removeBeneficiary(String accountId, String beneficiaryName) {
-        Account account = retrieveAccountDataById(accountId);
+        Account account = this.retrieveAccountDataById(accountId);
         Set<Beneficiary> beneficiaries = account.getBeneficiaries();
         Optional<Beneficiary> deletedBeneficiary = beneficiaries.stream()
                 .filter(beneficiary -> beneficiary.getName().equalsIgnoreCase(beneficiaryName))
@@ -163,9 +199,8 @@ public class AccountServiceImpl implements AccountService {
                         beneficiary.setAllocationPercentage(percentage.add(extra));
                         beneficiary.setSavings(saving.add(extraAmount));
                     }).collect(toSet());
-
         }
         account.setBeneficiaries(beneficiaries);
-        accountRepository.saveAndFlush(account);
+        this.accountRepository.saveAndFlush(account);
     }
 }

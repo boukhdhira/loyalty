@@ -45,8 +45,8 @@ public class AccountController {
     @GetMapping
     @ApiOperation(value = "retrieve list of all registered accounts", response = Page.class)
     public @ResponseBody
-    Page<AccountDTO> getAllAccounts(Pageable pageable) {
-        return accountService.getAllAccounts(pageable);
+    Page<AccountDTO> accountSummary(Pageable pageable) {
+        return this.accountService.getAllAccounts(pageable);
     }
 
     @GetMapping(value = "/{accountId}")
@@ -55,9 +55,9 @@ public class AccountController {
             @ApiResponse(code = 200, message = "Successfully retrieved account"),
             @ApiResponse(code = 404, message = "The account you were trying to reach is not found or id invalid")
     })
-    public ResponseEntity retrieveAccountByNumber(@PathVariable(name = "accountId") String number) {
+    public ResponseEntity retrieveAccountDetailsByNumber(@PathVariable(name = "accountId") String number) {
         log.debug("Request to retrieve account by number= {}", number);
-        return ResponseEntity.ok(accountService.getUserAccountByNumber(number));
+        return ResponseEntity.ok(this.accountService.getUserAccountByNumber(number));
     }
 
     @ApiOperation(value = "Add a new account")
@@ -71,7 +71,7 @@ public class AccountController {
                                                 @ApiParam(value = "Account object to store database", required = true)
                                                         AccountDTO account) {
         log.debug("Request to create new account {} ", account);
-        accountService.addAccount(account);
+        this.accountService.addAccount(account);
         return entityWithLocation(account.getNumber());
     }
 
@@ -87,7 +87,7 @@ public class AccountController {
                                                       "percentage", required = true) @NotEmpty(message = "Input beneficiaries list cannot be empty.")
                                               @RequestBody List<@Valid BeneficiaryDTO> beneficiaryDTOS) {
         log.debug("Request to add {} beneficiaries to account number {} ", beneficiaryDTOS.size(), accountId);
-        return accountService.addBeneficiariesToAccount(accountId, beneficiaryDTOS);
+        return this.accountService.addBeneficiariesToAccount(accountId, beneficiaryDTOS);
     }
 
     /**
@@ -110,7 +110,7 @@ public class AccountController {
                                              @ApiParam(value = "Card unique number", required = true)
                                              @RequestBody String cardNumber) {
         log.debug("Request to add a credit card number={} to account number {} ", cardNumber, accountId);
-        return accountService.addCreditCardToAccount(accountId, cardNumber);
+        return this.accountService.addCreditCardToAccount(accountId, cardNumber);
     }
 
     /**
@@ -128,9 +128,9 @@ public class AccountController {
     public ResponseEntity<Void> deleteAccount(@PathVariable(name = "accountId")
                                               @ApiParam(value = "account id ", required = true) String number) {
         log.debug("REST request to delete account: {}", number);
-        accountService.deleteAccount(number);
+        this.accountService.deleteAccount(number);
         return ResponseEntity.noContent().headers(RestRequestUtils.createAlert(
-                applicationName, "accountManagement.deleted", number)).build();
+                this.applicationName, "accountManagement.deleted", number)).build();
     }
 
     /**
@@ -145,6 +145,6 @@ public class AccountController {
             @ApiResponse(code = 402, message = "Invalid account id")})
     public void removeBeneficiary(@ApiParam(value = "account id ", required = true) @PathVariable String accountId
             , @ApiParam(value = "beneficiary registered name", required = true) @PathVariable String beneficiaryName) {
-        accountService.removeBeneficiary(accountId, beneficiaryName);
+        this.accountService.removeBeneficiary(accountId, beneficiaryName);
     }
 }

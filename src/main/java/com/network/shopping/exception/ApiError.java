@@ -1,6 +1,7 @@
 package com.network.shopping.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
@@ -13,6 +14,7 @@ import java.util.Map;
  * details: List of constructed error/validation messages
  */
 @Data
+@AllArgsConstructor
 @JsonInclude(content = JsonInclude.Include.NON_NULL)
 public class ApiError {
 
@@ -23,12 +25,6 @@ public class ApiError {
     public ApiError(HttpStatus status, String message) {
         this.status = status;
         this.message = message;
-    }
-
-    public ApiError(HttpStatus status, String message, Map<String, String> errors) {
-        this.status = status;
-        this.message = message;
-        details = errors;
     }
 }
 

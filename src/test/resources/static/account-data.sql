@@ -9,9 +9,9 @@ insert into T_ACCOUNT_CREDIT_CARD (ACCOUNT_ID, NUMBER) values (
 
 
 insert into T_ACCOUNT_BENEFICIARY (ACCOUNT_ID, NAME, ALLOCATION_PERCENTAGE, SAVINGS)
-	values (select ID from T_ACCOUNT where NUMBER = '123456789', 'Eric', .5, 0.00);
+	values (select ID from T_ACCOUNT where NUMBER = '123456789', 'Eric', .6, 0.00);
 insert into T_ACCOUNT_BENEFICIARY (ACCOUNT_ID, NAME, ALLOCATION_PERCENTAGE, SAVINGS)
-	values (select ID from T_ACCOUNT where NUMBER = '123456789', 'Dana', .5, 0.00);
+	values (select ID from T_ACCOUNT where NUMBER = '123456789', 'Dana', .4, 0.00);
 
 
 --insert into T_STORE (MERCHANT_NUMBER, NAME, BENEFITS_PERCENTAGE, BENEFITS_AVAILABILITY_POLICY)
