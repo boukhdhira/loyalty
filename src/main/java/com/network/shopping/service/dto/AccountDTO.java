@@ -11,6 +11,8 @@ import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.network.shopping.config.Constants.ACCOUNT_NUMBER_REGEX;
+
 @Data
 @ApiModel(description = "All details about an account. ")
 public class AccountDTO {
@@ -20,7 +22,7 @@ public class AccountDTO {
     @ApiModelProperty(notes = "The account reattached list of beneficiaries")
     Set<BeneficiaryDTO> beneficiaries = new HashSet<>();
     @NotBlank(message = "account number is mandatory")
-    @Pattern(regexp = "^[0-9]{9}$", message = "account number must contain 9 digits")
+    @Pattern(regexp = ACCOUNT_NUMBER_REGEX, message = "account number must contain 9 digits")
     @ApiModelProperty(notes = "The account identifier number")
     private String number;
     @NotBlank(message = "account name is mandatory")

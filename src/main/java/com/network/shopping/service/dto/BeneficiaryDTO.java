@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 
 @Data
 @ApiModel(description = "All details about an account beneficiary.")
-// disable override saving property
+// disable override/serialisation on "saving" property idem @JsonIgnore to setter and @JsonProperty to getter
 @JsonIgnoreProperties(value = "savings", allowGetters = true)
 public class BeneficiaryDTO {
     @NotBlank(message = "Beneficiary name is mandatory")
@@ -23,12 +23,4 @@ public class BeneficiaryDTO {
     private String percentage;
     @ApiModelProperty(notes = "Beneficiary savings amount")
     private BigDecimal savings = BigDecimal.ZERO;
-
-//    public String getPercentage() {
-//        return percentage.asBigDecimal().toString();
-//    }
-
-//    public void setPercentage(String percentage) {
-//        this.percentage = Percentage.of(percentage);
-//    }
 }
