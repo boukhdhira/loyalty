@@ -1,5 +1,6 @@
 package com.network.shopping.service.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.network.shopping.config.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -40,4 +41,7 @@ public class UserDTO implements Serializable {
     @Email(message = "invalid mail address")
     @Size(min = 5, max = 254)
     private String email;
+
+    @JsonIgnore
+    private boolean administrator = false;
 }

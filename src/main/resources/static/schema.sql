@@ -38,3 +38,7 @@ product_number varchar (9) not null,
 shopping_amount numeric (5, 2) not null,
 shopping_date date not null
 );
+
+--TODO: create script of init user /roles datatable
+--INSERT INTO t_role(	id, name)	VALUES (1, 'USER');
+--INSERT INTO t_role(	id, name)	VALUES (2, 'ADMIN');

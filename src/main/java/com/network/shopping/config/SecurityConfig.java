@@ -1,5 +1,6 @@
 package com.network.shopping.config;
 
+import com.network.shopping.security.jwt.JwtAuthEntryPoint;
 import com.network.shopping.security.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +31,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserDetailsService jwtUserDetailsService;
     @Autowired
     private JwtFilter jwtRequestFilter;
+    @Autowired
+    private JwtAuthEntryPoint unauthorizedHandler;
 
     /**
      * configure AuthenticationManager so that it knows from
@@ -55,21 +58,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-// We don't need CSRF for this example
         http
-                .csrf()
-                .disable()
-// dont authenticate this particular request
+                .cors()
+                .and()
+                .csrf().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(this.unauthorizedHandler)
+                //.accessDeniedHandler(this.problemSupport)
+                .and()
+                // dont authenticate this particular request
                 .authorizeRequests()
-                .antMatchers("/api/register").permitAll()
+                .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
+                .antMatchers("/api/signup").permitAll()
+                //.antMatchers("/signup/admin").hasRole("ADMIN")
                 .antMatchers("/api/authenticate").permitAll()
-                .antMatchers("/api/**").authenticated()
+                .anyRequest().authenticated()
                 //              .antMatchers("/management/**").hasAuthority(RoleEnum.ADMIN.name())
                 // make sure we use stateless session; session won't be used to store user's state.
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(this.problemSupport)
-                .accessDeniedHandler(this.problemSupport)
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

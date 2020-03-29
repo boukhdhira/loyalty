@@ -39,7 +39,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.error("Errors on request validation {}", errors);
         ApiError apiError =
                 new ApiError(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage(), errors);
-        return handleExceptionInternal(
+        return this.handleExceptionInternal(
                 ex, apiError, headers, apiError.getStatus(), request);
     }
 

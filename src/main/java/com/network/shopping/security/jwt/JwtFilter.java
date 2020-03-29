@@ -1,8 +1,6 @@
 package com.network.shopping.security.jwt;
 
-import com.network.shopping.exception.TokenExpiredException;
-import com.network.shopping.security.DomainUserDetailsService;
-import io.jsonwebtoken.ExpiredJwtException;
+import com.network.shopping.security.UserDetailsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,26 +17,29 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
-
 
 /**
  * For any incoming request, this Filter class gets executed. It checks
  * if the request has a valid JWT token. If it has a valid JWT Token, then
  * it sets the authentication in context to specify that the current user
  * is authenticated.
+ * <p>
+ * makes a single execution for each request to our API. It provides a
+ * doFilterInternal() method that we will implement parsing & validating JWT,
+ * loading User details (using UserDetailsService), checking Authorizaion
+ * (using UsernamePasswordAuthenticationToken)
  */
 @Component
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
-    private final DomainUserDetailsService jwtUserDetailsService;
+    private final UserDetailsServiceImpl jwtUserDetailsService;
 
     private final TokenProvider tokenProvider;
 
     @Autowired
-    public JwtFilter(DomainUserDetailsService jwtUserDetailsService, TokenProvider tokenProvider) {
+    public JwtFilter(UserDetailsServiceImpl jwtUserDetailsService, TokenProvider tokenProvider) {
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.tokenProvider = tokenProvider;
     }
@@ -46,35 +47,45 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String username = null;
-        String jwtToken = null;
         try {
-            jwtToken = this.resolveToken(request);
-            username = this.tokenProvider.getUsernameFromToken(jwtToken);
-        } catch (IllegalArgumentException e) {
-            log.error("JWT Token is not found");
-            //throw new TokenInvalidException();
-        } catch (ExpiredJwtException e) {
-            log.error("JWT Token has been expired");
-            throw new TokenExpiredException();
-        }
-        // Once we get the token validate it.
-        if (isNotEmpty(username) && StringUtils.hasText(jwtToken)
-                && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
-            // if token is valid configure Spring Security to manually set
-            // authentication
-            if (Boolean.TRUE.equals(this.tokenProvider.validateToken(jwtToken, userDetails))) {
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+            String jwt = this.resolveToken(request);
+            if (jwt != null && this.tokenProvider.validateJwtToken(jwt)) {
+                String username = this.tokenProvider.getUserNameFromJwtToken(jwt);
+
+                UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
-                usernamePasswordAuthenticationToken
-                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                // After setting the Authentication in the context, we specify
-                // that the current user is authenticated. So it passes the
-                // Spring Security Configurations successfully.
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
+        } catch (Exception e) {
+            this.logger.error("Cannot set user authentication: {}", e);
         }
+
+//        try {
+//            String jwtToken = this.resolveToken(request);
+//            String username = this.tokenProvider.getUsernameFromToken(jwtToken);
+//            // Once we get the token validate it.
+//            if (isNotEmpty(username) && StringUtils.hasText(jwtToken)
+//                    && SecurityContextHolder.getContext().getAuthentication() == null) {
+//                UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
+//                // if token is valid configure Spring Security to manually set
+//                // authentication
+//                if (Boolean.TRUE.equals(this.tokenProvider.validateToken(jwtToken, userDetails))) {
+//                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+//                            userDetails, null, userDetails.getAuthorities());
+//                    usernamePasswordAuthenticationToken
+//                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+//                    // After setting the Authentication in the context, we specify
+//                    // that the current user is authenticated. So it passes the
+//                    // Spring Security Configurations successfully.
+//                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+//                }
+//            }
+//        } catch (Exception e) {
+//            this.logger.error("Cannot set user authentication: {}", e);
+//        }
         chain.doFilter(request, response);
     }
 

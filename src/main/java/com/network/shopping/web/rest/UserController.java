@@ -10,6 +10,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -49,22 +50,36 @@ public class UserController {
      *                or with status {@code 400 (Bad Request)} if the login or email is already in use.
      * @throws HttpClientErrorException.BadRequest {@code 400 (Bad Request)} if the login or email is already in use.
      */
-    @PostMapping("/register")
+    @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation("Register a new user account")
     //@PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public void createUser(@Valid @RequestBody @NonNull @ApiParam(value = "user data information")
                                    UserDTO userDTO) {
         log.debug("REST request to save User : {}", userDTO);
-        if (!this.checkPasswordLength(userDTO.getPassword())) {
-            throw new IllegalArgumentException("Invalid password");
+        if (this.checkPasswordLength(userDTO.getPassword())) {
+            throw new IllegalArgumentException("Password don't match required size");
         }
         this.userService.createUser(userDTO);
     }
 
+    @PostMapping("/signup/admin")
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation("Register a new administrator")
+    @PreAuthorize("hasRole('ADMIN')")
+    public void createAdministratorUser(@Valid @RequestBody @ApiParam(value = "user data information")
+                                                UserDTO userDTO) {
+        log.debug("REST request to save administrator : {}", userDTO);
+        if (this.checkPasswordLength(userDTO.getPassword())) {
+            throw new IllegalArgumentException("Password don't match required size");
+        }
+        userDTO.setAdministrator(true);
+        this.userService.createUser(userDTO);
+    }
+
     private boolean checkPasswordLength(String password) {
-        return !isEmpty(password) &&
-                password.length() >= Constants.PASSWORD_MIN_LENGTH &&
-                password.length() <= Constants.PASSWORD_MAX_LENGTH;
+        return isEmpty(password) ||
+                password.length() < Constants.PASSWORD_MIN_LENGTH ||
+                password.length() > Constants.PASSWORD_MAX_LENGTH;
     }
 }
