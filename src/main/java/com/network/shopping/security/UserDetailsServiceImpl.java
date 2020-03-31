@@ -27,7 +27,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         log.debug("Fetching user login into database {}", login);
 
-
         if (new EmailValidator().isValid(login, null)) {
             return this.userRepository.findOneWithRolesByEmailIgnoreCase(login)
                     .map(UserDetailsImpl::build)

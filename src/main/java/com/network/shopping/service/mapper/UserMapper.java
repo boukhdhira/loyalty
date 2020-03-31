@@ -9,6 +9,8 @@ import com.network.shopping.service.utils.PasswordEncoderMapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", uses = {PasswordEncoderMapper.class, AuthorityMapper.class})
 public interface UserMapper {
 
@@ -17,4 +19,6 @@ public interface UserMapper {
     User toEntity(UserDTO dto);
 
     UserDTO toDto(User user);
+
+    List<UserDTO> toDtos(List<User> user);
 }

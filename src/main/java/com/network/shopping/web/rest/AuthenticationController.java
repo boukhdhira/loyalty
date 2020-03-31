@@ -53,14 +53,12 @@ public class AuthenticationController {
         this.userDetailsService = userDetailsService;
     }
 
-    @ApiOperation("login an account")
-    @PostMapping(value = "/authenticate")
+    @ApiOperation("login account")
+    @PostMapping(value = "/signin")
     public ResponseEntity createAuthenticationToken(@RequestBody @Valid LoginVM authenticationRequest) {
         log.debug("Attempt to login user by user name = {}", authenticationRequest.getUsername());
         Authentication authentication = this.authenticate(authenticationRequest.getUsername()
                 , authenticationRequest.getPassword());
-//        UserDetails userDetails = this.userDetailsService
-//                .loadUserByUsername(authenticationRequest.getUsername());
         String token = this.tokenProvider.generateToken(authentication
                 , (authenticationRequest.isRememberMe() == null) ? FALSE : authenticationRequest.isRememberMe());
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -83,11 +81,6 @@ public class AuthenticationController {
                 new UsernamePasswordAuthenticationToken(username, password));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return authentication;
-//        } catch (DisabledException e) {
-//            log.error("User account is actually disabled.");
-//        } catch (AuthenticationException e) {
-//            log.error("invalid credentials: " + e.getMessage());
-//        }
     }
 
 

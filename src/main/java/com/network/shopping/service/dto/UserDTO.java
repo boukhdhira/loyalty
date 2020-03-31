@@ -1,6 +1,7 @@
 package com.network.shopping.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.network.shopping.config.Constants;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,6 +14,7 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Data
+@JsonIgnoreProperties(allowSetters = true, value = "password")
 @ApiModel(description = "All user details ")
 public class UserDTO implements Serializable {
     private static final long serialVersionUID = -2624326677631113L;

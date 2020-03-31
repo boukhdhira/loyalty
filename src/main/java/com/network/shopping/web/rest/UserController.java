@@ -3,13 +3,18 @@ package com.network.shopping.web.rest;
 import com.network.shopping.config.Constants;
 import com.network.shopping.service.UserService;
 import com.network.shopping.service.dto.UserDTO;
+import com.network.shopping.service.utils.RestRequestUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -20,8 +25,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * TODO:
- * 1 add service that register admin (use same implementation)
- * 2 handle security access restriction by role
  * 3  add service to activate user
  * 4 rattache user and account
  */
@@ -32,6 +35,9 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class UserController {
 
     private final UserService userService;
+
+    @Value("${application.name}")
+    private String applicationName;
 
     @Autowired
     public UserController(UserService userService) {
@@ -63,7 +69,7 @@ public class UserController {
         this.userService.createUser(userDTO);
     }
 
-    @PostMapping("/signup/admin")
+    @PostMapping("/users/admin")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation("Register a new administrator")
     @PreAuthorize("hasRole('ADMIN')")
@@ -75,6 +81,34 @@ public class UserController {
         }
         userDTO.setAdministrator(true);
         this.userService.createUser(userDTO);
+    }
+
+    /**
+     * {@code GET /users} : get all users.
+     *
+     * @param pageable the pagination information.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
+     */
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/users")
+    public ResponseEntity<Page<UserDTO>> getAllUsers(Pageable pageable) {
+        Page<UserDTO> page = this.userService.getAllManagedUsers(pageable);
+        return ResponseEntity.ok(page);
+    }
+
+    /**
+     * {@code DELETE /users/:username} : delete the "username" User.
+     *
+     * @param username the username of the user to delete.
+     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     */
+    @DeleteMapping("/users/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
+        log.debug("REST request to delete User: {}", username);
+        this.userService.deleteUser(username);
+        return ResponseEntity.noContent().headers(RestRequestUtils.createAlert(
+                this.applicationName, "usersManagement.deleted", username)).build();
     }
 
     private boolean checkPasswordLength(String password) {

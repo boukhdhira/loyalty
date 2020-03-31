@@ -1,11 +1,11 @@
 package com.network.shopping.config;
 
+import com.network.shopping.security.jwt.JwtAuthAccessDeniedEntryPoint;
 import com.network.shopping.security.jwt.JwtAuthEntryPoint;
 import com.network.shopping.security.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -15,24 +15,30 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-@Import(SecurityProblemSupport.class)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private SecurityProblemSupport problemSupport;
-    @Autowired
-    private UserDetailsService jwtUserDetailsService;
-    @Autowired
-    private JwtFilter jwtRequestFilter;
-    @Autowired
-    private JwtAuthEntryPoint unauthorizedHandler;
+    private final UserDetailsService jwtUserDetailsService;
+
+    private final JwtFilter jwtRequestFilter;
+
+    private final JwtAuthEntryPoint unauthorizedHandler;
+
+    private final JwtAuthAccessDeniedEntryPoint accessDeniedHandler;
+
+    public SecurityConfig(UserDetailsService jwtUserDetailsService
+            , JwtFilter jwtRequestFilter, JwtAuthEntryPoint unauthorizedHandler, JwtAuthAccessDeniedEntryPoint accessDeniedHandler) {
+        this.jwtUserDetailsService = jwtUserDetailsService;
+        this.jwtRequestFilter = jwtRequestFilter;
+        this.unauthorizedHandler = unauthorizedHandler;
+        this.accessDeniedHandler = accessDeniedHandler;
+    }
 
     /**
      * configure AuthenticationManager so that it knows from
@@ -46,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    protected PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -56,24 +62,36 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    /**
+     * Spring Security configuration for integration test
+     */
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        auth.inMemoryAuthentication()
+                .passwordEncoder(encoder)
+                .withUser("user")
+                .password(encoder.encode("password"))
+                .roles("USER");
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .cors()
-                .and()
+                .cors().and()
                 .csrf().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint(this.unauthorizedHandler)
-                //.accessDeniedHandler(this.problemSupport)
+                .accessDeniedHandler(this.accessDeniedHandler)
                 .and()
-                // dont authenticate this particular request
+                // don't authenticate this particular request
                 .authorizeRequests()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 .antMatchers("/api/signup").permitAll()
                 //.antMatchers("/signup/admin").hasRole("ADMIN")
-                .antMatchers("/api/authenticate").permitAll()
+                .antMatchers("/api/signin").permitAll()
                 .anyRequest().authenticated()
-                //              .antMatchers("/management/**").hasAuthority(RoleEnum.ADMIN.name())
+                //.antMatchers("/management/**").hasAuthority(RoleEnum.ADMIN.name())
                 // make sure we use stateless session; session won't be used to store user's state.
                 .and()
                 .sessionManagement()

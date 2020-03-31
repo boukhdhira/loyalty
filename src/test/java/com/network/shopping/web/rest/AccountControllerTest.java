@@ -6,15 +6,18 @@ import com.network.shopping.service.dto.AccountDTO;
 import com.network.shopping.service.dto.BeneficiaryDTO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +32,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -37,7 +41,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Integration tests for the {@link AccountController} REST controller.
  */
 @SpringBootTest
-@AutoConfigureMockMvc
 public class AccountControllerTest {
 
     public static final String DEFAULT_FIRST_ACCOUNT_NUMBER = "123456789";
@@ -45,12 +48,14 @@ public class AccountControllerTest {
     public static final String DEFAULT_FIRST_ACCOUNT_NAME = randomAlphabetic(10);
     public static final String DEFAULT_CREDIT_CARD_NUMBER = "1234123412340001";
     public static final String DEFAULT_BENEFICIARY_NAME = "Dana";
-    @Autowired
+    public static final String DEFAULT_USER = "user";
     private MockMvc restMockMvc;
 
     @Autowired
-    private AccountRepository repository;
+    private WebApplicationContext context;
 
+    @Autowired
+    private AccountRepository repository;
 
     public static Account createEntity() {
         Account defaultAccount = new Account();
@@ -60,9 +65,18 @@ public class AccountControllerTest {
         return defaultAccount;
     }
 
+    @BeforeEach
+    public void setup() {
+        this.restMockMvc = MockMvcBuilders
+                .webAppContextSetup(this.context)
+                .apply(springSecurity())
+                .build();
+    }
+
     // verify(repository, times(0)).save(any(Account.class)); --> Validation errors
     //  given(service.getAllEmployees()).willReturn(allEmployees) -> when ... mock service
 
+    @WithMockUser(value = DEFAULT_USER)
     @Test
     @Transactional
     public void testSaveValidAccount() throws Exception {
@@ -84,6 +98,7 @@ public class AccountControllerTest {
         Assertions.assertThat(createdUser.getBeneficiaries()).isEmpty();
     }
 
+    @WithMockUser(value = DEFAULT_USER)
     @Test
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -95,6 +110,7 @@ public class AccountControllerTest {
                 .andExpect(jsonPath("$.content[0].number", is(DEFAULT_FIRST_ACCOUNT_NUMBER)));
     }
 
+    @WithMockUser(value = DEFAULT_USER)
     @Test
     @Transactional
     public void testDeleteAccountByValidId() throws Exception {
@@ -109,6 +125,7 @@ public class AccountControllerTest {
         assertThat(emptyList, empty());
     }
 
+    @WithMockUser(value = DEFAULT_USER)
     @Test
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -126,6 +143,7 @@ public class AccountControllerTest {
         //  verify(service, times(0)).addAccount(any(AccountDTO.class));
     }
 
+    @WithMockUser(value = DEFAULT_USER)
     @Test
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -142,6 +160,7 @@ public class AccountControllerTest {
                 .andExpect(status().isConflict());
     }
 
+    @WithMockUser(value = DEFAULT_USER)
     @Test
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -156,6 +175,7 @@ public class AccountControllerTest {
         //assertThat(account.map(b -> b.getBeneficiaries().size()).orElse(0), equalTo(1));
     }
 
+    @WithMockUser(value = DEFAULT_USER)
     @Test
     void shouldReturnBadRequestWhenInputDataHasInvalidFormat() throws Exception {
         AccountDTO account = new AccountDTO();
@@ -188,6 +208,7 @@ public class AccountControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @WithMockUser(value = DEFAULT_USER)
     @Test
     void shouldReturnBadRequestWhenBeneficiariesHasASumOfAllocationPercentageGreaterThen100() throws Exception {
         BeneficiaryDTO beneficiary1 = new BeneficiaryDTO();
@@ -211,6 +232,7 @@ public class AccountControllerTest {
     }
 
     @Test
+    @WithMockUser(value = DEFAULT_USER)
     void shouldReturn404NotFoundWhenAccountIdIsNotReattachedToAnyAccount() throws Exception {
         this.restMockMvc.perform(get("/api/v1/accounts/{accountId}", RandomStringUtils.random(9))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -220,6 +242,7 @@ public class AccountControllerTest {
 
     @Test
     @Transactional
+    @WithMockUser(value = DEFAULT_USER)
     void shouldReturnAccountDetailsWhenAccountIdExist() throws Exception {
         this.repository.save(createEntity());
 

@@ -16,7 +16,7 @@ import static com.network.shopping.config.Constants.PASSWORD_MIN_LENGTH;
 public class LoginVM implements Serializable {
     private static final long serialVersionUID = -5604186713664100138L;
 
-    @ApiModelProperty(required = true)
+    @ApiModelProperty(notes = " username or email address ", required = true)
     @NotBlank(message = "You must enter login")
     @Size(min = 1, max = 50)
     private String username;
@@ -26,9 +26,9 @@ public class LoginVM implements Serializable {
     @Size(min = PASSWORD_MIN_LENGTH, max = PASSWORD_MAX_LENGTH)
     private String password;
 
+    @ApiModelProperty(notes = "Keep logged in flag")
     private Boolean rememberMe;
 
-    @ApiModelProperty(name = "Keep logged in flag")
     public Boolean isRememberMe() {
         return this.rememberMe;
     }

@@ -62,30 +62,6 @@ public class JwtFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             this.logger.error("Cannot set user authentication: {}", e);
         }
-
-//        try {
-//            String jwtToken = this.resolveToken(request);
-//            String username = this.tokenProvider.getUsernameFromToken(jwtToken);
-//            // Once we get the token validate it.
-//            if (isNotEmpty(username) && StringUtils.hasText(jwtToken)
-//                    && SecurityContextHolder.getContext().getAuthentication() == null) {
-//                UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
-//                // if token is valid configure Spring Security to manually set
-//                // authentication
-//                if (Boolean.TRUE.equals(this.tokenProvider.validateToken(jwtToken, userDetails))) {
-//                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-//                            userDetails, null, userDetails.getAuthorities());
-//                    usernamePasswordAuthenticationToken
-//                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//                    // After setting the Authentication in the context, we specify
-//                    // that the current user is authenticated. So it passes the
-//                    // Spring Security Configurations successfully.
-//                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-//                }
-//            }
-//        } catch (Exception e) {
-//            this.logger.error("Cannot set user authentication: {}", e);
-//        }
         chain.doFilter(request, response);
     }
 

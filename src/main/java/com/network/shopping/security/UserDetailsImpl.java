@@ -11,9 +11,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * User’s information such as username, password, authorities
+ * to store/retrieve into the authentication object.
+ */
+// TODO: activate user and dynamically recuperate flags from db
 @Data
 public class UserDetailsImpl implements UserDetails {
-
     private static final long serialVersionUID = -8010520244808886197L;
     private Long id;
 
@@ -37,7 +41,7 @@ public class UserDetailsImpl implements UserDetails {
 
     public static UserDetailsImpl build(User user) {
         List<GrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toList());
 
         return new UserDetailsImpl(
@@ -48,7 +52,6 @@ public class UserDetailsImpl implements UserDetails {
                 authorities);
     }
 
-    // TODO: activate user and dynamically recuperate flags from db
     @Override
     public boolean isAccountNonExpired() {
         return true;
