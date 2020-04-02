@@ -25,6 +25,7 @@
         <jaxb.version>2.1</jaxb.version>
         <jwt.version>0.9.1</jwt.version>
         <zalando-problem.version>0.25.2</zalando-problem.version>
+        <ice-green.version>1.5.0</ice-green.version>
     </properties>
 
     <dependencies>
@@ -89,6 +90,12 @@
         <dependency>
             <groupId>nz.net.ultraq.thymeleaf</groupId>
             <artifactId>thymeleaf-layout-dialect</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>${ice-green.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>

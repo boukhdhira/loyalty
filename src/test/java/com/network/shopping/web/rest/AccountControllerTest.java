@@ -49,6 +49,7 @@ public class AccountControllerTest {
     public static final String DEFAULT_CREDIT_CARD_NUMBER = "1234123412340001";
     public static final String DEFAULT_BENEFICIARY_NAME = "Dana";
     public static final String DEFAULT_USER = "user";
+    public static final String DEFAULT_ADMINISTRATOR = "admin";
     private MockMvc restMockMvc;
 
     @Autowired
@@ -76,7 +77,7 @@ public class AccountControllerTest {
     // verify(repository, times(0)).save(any(Account.class)); --> Validation errors
     //  given(service.getAllEmployees()).willReturn(allEmployees) -> when ... mock service
 
-    @WithMockUser(value = DEFAULT_USER)
+    @WithMockUser(value = DEFAULT_ADMINISTRATOR, roles = {"ADMIN"})
     @Test
     @Transactional
     public void testSaveValidAccount() throws Exception {
@@ -110,7 +111,7 @@ public class AccountControllerTest {
                 .andExpect(jsonPath("$.content[0].number", is(DEFAULT_FIRST_ACCOUNT_NUMBER)));
     }
 
-    @WithMockUser(value = DEFAULT_USER)
+    @WithMockUser(value = DEFAULT_ADMINISTRATOR)
     @Test
     @Transactional
     public void testDeleteAccountByValidId() throws Exception {
@@ -125,10 +126,11 @@ public class AccountControllerTest {
         assertThat(emptyList, empty());
     }
 
-    @WithMockUser(value = DEFAULT_USER)
+
     @Test
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @WithMockUser(value = DEFAULT_USER)
     void shouldReturnConflictRequestWhenAccountNumberAlreadyUsed() throws Exception {
         AccountDTO account = new AccountDTO();
         account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
@@ -143,10 +145,10 @@ public class AccountControllerTest {
         //  verify(service, times(0)).addAccount(any(AccountDTO.class));
     }
 
-    @WithMockUser(value = DEFAULT_USER)
     @Test
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    @WithMockUser(value = DEFAULT_USER)
     void shouldReturnConflictRequestWhenCreditCardNumberIsAlreadyUsedForOtherAccount() throws Exception {
         AccountDTO account = new AccountDTO();
         account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
@@ -160,7 +162,7 @@ public class AccountControllerTest {
                 .andExpect(status().isConflict());
     }
 
-    @WithMockUser(value = DEFAULT_USER)
+    @WithMockUser(value = DEFAULT_ADMINISTRATOR)
     @Test
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -175,7 +177,7 @@ public class AccountControllerTest {
         //assertThat(account.map(b -> b.getBeneficiaries().size()).orElse(0), equalTo(1));
     }
 
-    @WithMockUser(value = DEFAULT_USER)
+    @WithMockUser(value = DEFAULT_ADMINISTRATOR)
     @Test
     void shouldReturnBadRequestWhenInputDataHasInvalidFormat() throws Exception {
         AccountDTO account = new AccountDTO();
@@ -208,8 +210,8 @@ public class AccountControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @WithMockUser(value = DEFAULT_USER)
     @Test
+    @WithMockUser(value = DEFAULT_USER)
     void shouldReturnBadRequestWhenBeneficiariesHasASumOfAllocationPercentageGreaterThen100() throws Exception {
         BeneficiaryDTO beneficiary1 = new BeneficiaryDTO();
         beneficiary1.setPercentage("80%");

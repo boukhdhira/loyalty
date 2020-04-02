@@ -6,6 +6,7 @@ import com.network.shopping.security.jwt.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -21,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
+@Profile("!test")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService jwtUserDetailsService;
@@ -61,19 +63,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    /**
-     * Spring Security configuration for integration test
-     */
-//    @Override
-//    @Profile("test")
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//        auth.inMemoryAuthentication()
-//                .passwordEncoder(encoder)
-//                .withUser("user")
-//                .password(encoder.encode("password"))
-//                .roles("USER");
-//    }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http

@@ -6,4 +6,5 @@ public final class Constants {
     public static final String ACCOUNT_NUMBER_REGEX = "^[0-9]{9}$";
     public static final int PASSWORD_MIN_LENGTH = 8;
     public static final int PASSWORD_MAX_LENGTH = 20;
+    public static final String ACTIVATION_KEY = "activationKey";
 }
