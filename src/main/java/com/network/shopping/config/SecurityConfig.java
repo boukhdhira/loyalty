@@ -15,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -65,16 +64,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * Spring Security configuration for integration test
      */
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        auth.inMemoryAuthentication()
-                .passwordEncoder(encoder)
-                .withUser("user")
-                .password(encoder.encode("password"))
-                .roles("USER");
-    }
-
+//    @Override
+//    @Profile("test")
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+//        auth.inMemoryAuthentication()
+//                .passwordEncoder(encoder)
+//                .withUser("user")
+//                .password(encoder.encode("password"))
+//                .roles("USER");
+//    }
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -87,7 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // don't authenticate this particular request
                 .authorizeRequests()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
-                .antMatchers("/api/signup").permitAll()
+                .antMatchers("/api/v1/signup").permitAll()
                 //.antMatchers("/signup/admin").hasRole("ADMIN")
                 .antMatchers("/api/signin").permitAll()
                 .anyRequest().authenticated()

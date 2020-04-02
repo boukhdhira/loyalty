@@ -41,6 +41,7 @@ public class UserDTO implements Serializable {
 
     @ApiModelProperty(name = "user email")
     @Email(message = "invalid mail address")
+    @NotBlank(message = "email address is mandatory to activate your account")
     @Size(min = 5, max = 254)
     private String email;
 

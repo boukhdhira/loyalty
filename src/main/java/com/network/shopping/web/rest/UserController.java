@@ -29,7 +29,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  * 4 rattache user and account
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 @Slf4j
 @Api("User management services")
 public class UserController {

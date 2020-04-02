@@ -1,4 +1,4 @@
-package com.network.shopping.service.utils;
+package com.network.shopping.service.mapper;
 
 import com.google.common.collect.ImmutableSet;
 import com.network.shopping.common.enums.RoleEnum;

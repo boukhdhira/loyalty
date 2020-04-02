@@ -9,6 +9,7 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
 
+//TODO: change user by client and make email adresse as mandatory to activate account aand rattache account to client
 @Entity
 @Table(name = "t_user")
 @Data
@@ -39,7 +40,7 @@ public class User implements Serializable {
 
     @Email
     @Size(min = 5, max = 254)
-    @Column(length = 254, unique = true)
+    @Column(length = 254, unique = true, nullable = false)
     private String email;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)

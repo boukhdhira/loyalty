@@ -33,7 +33,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 @Transactional
 public class AccountServiceImpl implements AccountService {
 
-    BeneficiaryMapper beneficiaryMapper;
+    private BeneficiaryMapper beneficiaryMapper;
     private AccountRepository accountRepository;
     private AccountMapper accountMapper;
 
@@ -109,6 +109,7 @@ public class AccountServiceImpl implements AccountService {
         this.accountRepository.saveAndFlush(this.accountMapper.toEntity(accountDTO));
         return accountDTO;
     }
+
 
     private void validateBeneficiariesPercentage(AccountDTO account) {
         this.computeAllocationPercentages(new ArrayList<>(account.getBeneficiaries()));

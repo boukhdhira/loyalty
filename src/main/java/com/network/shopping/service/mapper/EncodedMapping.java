@@ -1,4 +1,4 @@
-package com.network.shopping.service.utils;
+package com.network.shopping.service.mapper;
 
 
 import org.mapstruct.Qualifier;
