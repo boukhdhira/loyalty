@@ -41,7 +41,7 @@ public class MailClientTest {
         request.setRecipient(RECIPIENT_ADDRESS);
         String key = randomAlphabetic(10);
         request.setProps(Collections.singletonMap(ACTIVATION_KEY, key));
-        this.mailClient.sendActivation(request);
+        this.mailClient.prepareAndSendActivation(request);
         //then
         this.assertReceivedMessageContains(key);
     }

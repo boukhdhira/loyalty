@@ -3,9 +3,9 @@ package com.network.shopping.web.rest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.network.shopping.security.LoginVM;
 import com.network.shopping.security.UserDetailsImpl;
-import com.network.shopping.security.UserDetailsServiceImpl;
 import com.network.shopping.security.jwt.JwtFilter;
 import com.network.shopping.security.jwt.TokenProvider;
+import com.network.shopping.service.AccountService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.Builder;
@@ -43,14 +43,14 @@ public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final AccountService accountService;
 
     @Autowired
-    public AuthenticationController(AuthenticationManager authenticationManager, TokenProvider tokenProvider
-            , UserDetailsServiceImpl userDetailsService) {
+    public AuthenticationController(AuthenticationManager authenticationManager, TokenProvider tokenProvider,
+                                    AccountService accountService) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
-        this.userDetailsService = userDetailsService;
+        this.accountService = accountService;
     }
 
     @ApiOperation("login account")
@@ -66,7 +66,9 @@ public class AuthenticationController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(toList());
         return new ResponseEntity<>(JWTToken.builder().idToken(token).username(authenticationRequest.getUsername())
-                .roles(roles).build()
+                .roles(roles)
+                .accountId(this.accountService.getAccountIdByClient(userDetails.getUsername()))
+                .build()
                 , this.getAuthenticationResponseHeaders(token), HttpStatus.OK);
     }
 
@@ -93,6 +95,7 @@ public class AuthenticationController {
 
         private String idToken;
         private String username;
+        private String accountId;
         private List<String> roles;
 
         @JsonProperty("id_token")

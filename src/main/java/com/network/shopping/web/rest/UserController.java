@@ -24,9 +24,7 @@ import javax.validation.Valid;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
- * TODO:
- * 3  add service to activate user
- * 4 rattache user and account
+ * TODO: rattach user to an account
  */
 @RestController
 @RequestMapping("/api/v1")
@@ -109,6 +107,17 @@ public class UserController {
         this.userService.deleteUser(username);
         return ResponseEntity.noContent().headers(RestRequestUtils.createAlert(
                 this.applicationName, "usersManagement.deleted", username)).build();
+    }
+
+    //TODO: on peut developpeur un CRON job qui regenere des activations key si l'utilsateur n'as pas encore validé son enregistrement
+    @GetMapping("/activate")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Activate user account by token", notes = "token must be valid and not expired")
+    public void activateUserAccount(@RequestParam String key) {
+        if (isEmpty(key)) {
+            throw new IllegalArgumentException("Activation key is invalid or broken!");
+        }
+        this.userService.activateRegistration(key);
     }
 
     private boolean checkPasswordLength(String password) {

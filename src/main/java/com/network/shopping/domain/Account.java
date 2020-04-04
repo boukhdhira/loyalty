@@ -46,4 +46,7 @@ public class Account implements Serializable {
     private Set<CreditCard> creditCards = new HashSet<>();
     @Version
     private int version;
+    @NotNull
+    @Column(name = "user_id")
+    private String clientId;
 }

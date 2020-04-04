@@ -17,15 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.List;
-
-import static com.network.shopping.service.utils.RestRequestUtils.entityWithLocation;
 
 /**
  * A controller handling requests for CRUD operations on Accounts and their
  * Beneficiaries.
  */
+//TODO: all service with account number on param must be verified if authenticaed user is the ower of this account
 @RestController
 @RequestMapping("/api/v1/accounts")
 @Validated
@@ -60,20 +58,20 @@ public class AccountController {
         return ResponseEntity.ok(this.accountService.getUserAccountByNumber(number));
     }
 
-    @ApiOperation(value = "Add a new account")
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successfully save a new account"),
-            @ApiResponse(code = 400, message = "Validation failed for account data"),
-            @ApiResponse(code = 409, message = "The account id or card number you were trying to save has been used")})
-    public ResponseEntity<Void> registerAccount(@Valid @NotNull @RequestBody
-                                                @ApiParam(value = "Account object to store database", required = true)
-                                                        AccountDTO account) {
-        log.debug("Request to create new account {} ", account);
-        this.accountService.addAccount(account);
-        return entityWithLocation(account.getNumber());
-    }
+//    @ApiOperation(value = "Add a new account")
+//    @PostMapping
+//    @ResponseStatus(HttpStatus.CREATED)
+//    @ApiResponses(value = {
+//            @ApiResponse(code = 201, message = "Successfully save a new account"),
+//            @ApiResponse(code = 400, message = "Validation failed for account data"),
+//            @ApiResponse(code = 409, message = "The account id or card number you were trying to save has been used")})
+//    public ResponseEntity<Void> registerAccount(@Valid @NotNull @RequestBody
+//                                                @ApiParam(value = "Account object to store database", required = true)
+//                                                        AccountDTO account) {
+//        log.debug("Request to create new account {} ", account);
+//        this.accountService.createAccount(account);
+//        return entityWithLocation(account.getNumber());
+//    }
 
     @ApiOperation(value = "Attache a new beneficiary to an existing account")
     @PostMapping("/{accountId}/beneficiary")

@@ -14,12 +14,16 @@ public interface AccountService {
 
     AccountDTO getUserAccountByNumber(String number);
 
-    AccountDTO addAccount(AccountDTO accountDTO);
+    AccountDTO createAccount(AccountDTO accountDTO);
+
+    AccountDTO createAccount(String clientId);
 
     AccountDTO addBeneficiariesToAccount(String accountId, List<BeneficiaryDTO> beneficiaryDTOS);
 
     AccountDTO addCreditCardToAccount(String accountId, String cardNumber);
 
     void removeBeneficiary(String accountId, String beneficiaryName);
+
+    String getAccountIdByClient(String clientId);
 }
 

@@ -7,4 +7,6 @@ public final class Constants {
     public static final int PASSWORD_MIN_LENGTH = 8;
     public static final int PASSWORD_MAX_LENGTH = 20;
     public static final String ACTIVATION_KEY = "activationKey";
+    public static final String DEFAULT_ACCOUNT_NAME = "LoyaltY";
+    public static final int TOKEN_EXPIRATION = 60 * 24;
 }

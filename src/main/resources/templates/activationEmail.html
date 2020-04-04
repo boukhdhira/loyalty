@@ -13,7 +13,12 @@
 </p>
 <p>
     <a th:href="${url}" th:text="${url}"
-       th:with="url=(@{|${activationUrl}/activate?key=${activationKey}|})">Activation link</a>
+       th:with="url=(@{|${activationUrl}/v1/activate?key=${activationKey}|})">Activation link</a>
+</p>
+<p style="margin-top: 50px;">
+    <!--    TODO: recuperer le temps de validité à partir de props-->
+    <em>*You must enter this code within 24 hours. After this time, you will need to request a new activation
+        code.</em>
 </p>
 <p>
     Regards,

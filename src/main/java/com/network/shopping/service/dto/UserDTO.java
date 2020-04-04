@@ -30,16 +30,16 @@ public class UserDTO implements Serializable {
 
     @ApiModelProperty(required = true, name = "user first name")
     @Size(max = 50)
-    @Pattern(regexp = Constants.USER_NAME_REGEX)
+    @Pattern(regexp = Constants.USER_NAME_REGEX, message = "Only letters are accepted for first name")
     @NotBlank(message = "first name is mandatory")
     private String firstName;
 
     @ApiModelProperty(required = true, name = "user last name")
-    @Pattern(regexp = Constants.USER_NAME_REGEX)
+    @Pattern(regexp = Constants.USER_NAME_REGEX, message = "Only letters are accepted for last name")
     @NotBlank(message = "last name is mandatory")
     private String lastName;
 
-    @ApiModelProperty(name = "user email")
+    @ApiModelProperty(name = "user email", required = true)
     @Email(message = "invalid mail address")
     @NotBlank(message = "email address is mandatory to activate your account")
     @Size(min = 5, max = 254)

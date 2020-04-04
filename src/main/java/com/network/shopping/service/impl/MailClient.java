@@ -50,25 +50,26 @@ public class MailClient {
     }
 
     @Async
-    public void sendActivation(@NonNull MailRequest mailRequest) throws MessagingException, IOException {
-
-        if (isNull(mailRequest.getRecipient())) {
+    public void prepareAndSendActivation(@NonNull MailRequest mailRequest) throws MessagingException, IOException {
+        String recipientAddress = mailRequest.getRecipient();
+        if (isNull(recipientAddress)) {
             log.error("recipient address cannot be empty ");
             throw new IOException("Recipient address is empty");
         }
         String activationKey = (String) mailRequest.getProps().get(ACTIVATION_KEY);
         if (isBlank(activationKey)) {
-            log.error("Activation key is not generated for id= {} ", mailRequest.getRecipient());
+            log.error("Activation key is not generated for id= {} ", recipientAddress);
             throw new IOException("Activation key is not generated");
         }
 
         String mailContent = this.mailContentBuilder.build(mailRequest, this.mailProperties.getActivationTemplate(),
                 this.mailProperties.getBaseUrl());
-        this.prepareAndSendWithTemplate(mailRequest.getRecipient()
+        this.prepareAndSendWithTemplate(recipientAddress
                 , mailRequest.getCc(),
                 this.mailProperties.getActivationSubject()
                 , mailContent
                 , new HashMap<>());
+        log.debug("Activation mail was sent to {}", recipientAddress);
     }
 
     private void prepareAndSendWithTemplate(String to, List<String> cc, String subject, String content,
@@ -118,5 +119,4 @@ public class MailClient {
                 = new FileSystemResource(new File(pathToAttachment));
         helper.addAttachment(file.getFilename(), file);
     }
-
 }

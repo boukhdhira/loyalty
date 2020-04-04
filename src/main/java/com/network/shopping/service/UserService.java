@@ -11,4 +11,6 @@ public interface UserService {
     void deleteUser(String username);
 
     Page<UserDTO> getAllManagedUsers(Pageable pageable);
+
+    void activateRegistration(String key);
 }

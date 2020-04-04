@@ -59,4 +59,19 @@ public class User implements Serializable {
     private boolean credentialsExpired = false;
 
     private boolean enabled = false;
+
+    @Override
+    public String toString() {
+        return "{" +
+                "username='" + this.username + '\'' +
+                ", firstName='" + this.firstName + '\'' +
+                ", lastName='" + this.lastName + '\'' +
+                ", email='" + this.email + '\'' +
+                ", roles=" + this.roles +
+                ", accountExpired=" + this.accountExpired +
+                ", accountLocked=" + this.accountLocked +
+                ", credentialsExpired=" + this.credentialsExpired +
+                ", enabled=" + this.enabled +
+                '}';
+    }
 }

@@ -1,21 +1,26 @@
 package com.network.shopping.service.impl;
 
+import com.network.shopping.domain.ConfirmationToken;
 import com.network.shopping.domain.User;
+import com.network.shopping.repository.ConfirmationTokenRepository;
 import com.network.shopping.repository.UserRepository;
 import com.network.shopping.service.UserService;
-import com.network.shopping.service.dto.MailRequest;
+import com.network.shopping.service.dto.OnRegistrationCompleteEvent;
 import com.network.shopping.service.dto.UserDTO;
 import com.network.shopping.service.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Optional;
+
+import static com.network.shopping.config.Constants.TOKEN_EXPIRATION;
 
 @Service
 @Slf4j
@@ -27,13 +32,30 @@ public class UserServiceImpl implements UserService {
 
     private final MailClient mailClient;
 
+    private final ApplicationEventPublisher eventPublisher;
+
+    private final ConfirmationTokenRepository tokenRepository;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, MailClient mailClient) {
+    public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, MailClient mailClient
+            , ApplicationEventPublisher eventPublisher, ConfirmationTokenRepository tokenRepository) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.mailClient = mailClient;
+        this.eventPublisher = eventPublisher;
+        this.tokenRepository = tokenRepository;
     }
 
+    /**
+     * Save user account and send activation key throw an email
+     * Generate activation key and store also send email are
+     * considered a parallel treatment (Async) and it will be
+     * handled throw async event.
+     * <b>All type of users needs to be activated on creation.</b>
+     *
+     * @param userDTO user data information
+     * @return created entity
+     */
     @Override
     public UserDTO createUser(UserDTO userDTO) {
         if (this.userRepository.findOneByUsername(userDTO.getUsername().toLowerCase()).isPresent()) {
@@ -46,8 +68,8 @@ public class UserServiceImpl implements UserService {
 
         User user = this.userRepository.save(this.userMapper.toEntity(userDTO));
         log.debug("User registered successfully!: {}", user);
-        this.sendActivationMail(user);
-        //TODO: mail mandatry + add account;
+        this.eventPublisher.publishEvent(new OnRegistrationCompleteEvent
+                (user));
         return this.userMapper.toDto(user);
 
     }
@@ -66,20 +88,28 @@ public class UserServiceImpl implements UserService {
         return this.userRepository.findAll(pageable).map(this.userMapper::toDto);
     }
 
-    private void sendActivationMail(User user) {
-        MailRequest request = new MailRequest();
-        request.setRecipient(user.getEmail());
-        Map<String, Object> props = new HashMap<>();
-        props.put("name", user.getLastName());
-        //TODO: generate key for each new client
-        props.put("activationKey", "DODKDSL5SSS");
-        request.setProps(props);
-        try {
-            this.mailClient.sendActivation(request);
-        } catch (MessagingException e) {
-            log.error("Invalid mail address {}", user.getEmail(), e);
-        } catch (IOException e) {
-            log.error("Unable to load mail resource {}", e.getMessage());
-        }
+    @Override
+    public void activateRegistration(String key) {
+        Optional<ConfirmationToken> tokenRecord = this.tokenRepository.findByToken(key);
+        User user = tokenRecord.map(token -> {
+            if (this.isExpired(token)) {
+                throw new DataIntegrityViolationException("Token is expired");
+            }
+            return token.getUser();
+        }).orElseThrow(() -> new IllegalArgumentException("Invalid activation key"));
+        user.setEnabled(true);
+        this.userRepository.save(user);
+        log.debug("user is enabled now {}", user);
+    }
+
+    private boolean isExpired(ConfirmationToken token) {
+        return this.calculateExpiryDate(token.getCreatedDate()).before(new Date());
+    }
+
+    private Date calculateExpiryDate(Date creationDate) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(creationDate);
+        cal.add(Calendar.MINUTE, TOKEN_EXPIRATION);
+        return new Date(cal.getTime().getTime());
     }
 }

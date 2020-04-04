@@ -24,8 +24,10 @@ import java.util.*;
 
 import static com.network.shopping.common.Percentage.oneHundred;
 import static com.network.shopping.common.Percentage.zero;
+import static com.network.shopping.config.Constants.DEFAULT_ACCOUNT_NAME;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.RandomStringUtils.random;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Service
@@ -89,7 +91,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDTO addAccount(AccountDTO accountDTO) {
+    public AccountDTO createAccount(AccountDTO accountDTO) {
         if (!isEmpty(accountDTO.getBeneficiaries())) {
             this.validateBeneficiariesPercentage(accountDTO);
         }
@@ -108,6 +110,15 @@ public class AccountServiceImpl implements AccountService {
 
         this.accountRepository.saveAndFlush(this.accountMapper.toEntity(accountDTO));
         return accountDTO;
+    }
+
+    @Override
+    public AccountDTO createAccount(String clientId) {
+        Account account = new Account();
+        account.setClientId(clientId);
+        account.setNumber(random(9, false, true));
+        account.setName(DEFAULT_ACCOUNT_NAME);
+        return this.accountMapper.toDto(this.accountRepository.saveAndFlush(account));
     }
 
 
@@ -203,5 +214,12 @@ public class AccountServiceImpl implements AccountService {
         }
         account.setBeneficiaries(beneficiaries);
         this.accountRepository.saveAndFlush(account);
+    }
+
+    @Override
+    public String getAccountIdByClient(String clientId) {
+        return this.accountRepository.findOneByClientId(clientId).map(
+                Account::getNumber
+        ).orElseThrow(() -> new DataIntegrityViolationException("Cannot find account for authenticated user"));
     }
 }
