@@ -83,10 +83,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDTO getUserAccountByNumber(String number) {
-        return this.accountRepository.findOneByNumber(number)
+    public AccountDTO getUserAccountByNumber(String number, String clientId) {
+        return this.accountRepository.findOneByNumberAndClientId(number, clientId)
                 .map(account -> this.accountMapper.toDto(account))
-                .orElseThrow(() -> new ResourceNotFoundException("Invalid account number"))
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid account number or you are not agile to access"))
                 ;
     }
 
@@ -127,8 +127,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDTO addBeneficiariesToAccount(String accountId, List<BeneficiaryDTO> beneficiaryDTOS) {
-        Account accountData = this.retrieveAccountDataById(accountId);
+    public AccountDTO addBeneficiariesToAccount(String accountId, List<BeneficiaryDTO> beneficiaryDTOS, String clientId) {
+        Account accountData = this.retrieveAccountDataById(accountId, clientId);
         this.computeBeneficiariesNewAllocationsPercentage(accountData, beneficiaryDTOS);
         accountData.getBeneficiaries().addAll(beneficiaryDTOS.stream()
                 .filter(Objects::nonNull)
@@ -159,8 +159,8 @@ public class AccountServiceImpl implements AccountService {
                 .reduce(zero(), Percentage::add);
     }
 
-    private Account retrieveAccountDataById(String accountId) {
-        Optional<Account> accountOptional = this.accountRepository.findOneByNumber(accountId);
+    private Account retrieveAccountDataById(String accountId, String clientId) {
+        Optional<Account> accountOptional = this.accountRepository.findOneByNumberAndClientId(accountId, clientId);
         if (!accountOptional.isPresent()) {
             throw new IllegalArgumentException("Invalid account number: " + accountId);
         }
@@ -168,8 +168,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDTO addCreditCardToAccount(String accountId, String cardNumber) {
-        Account account = this.retrieveAccountDataById(accountId);
+    public AccountDTO addCreditCardToAccount(String accountId, String cardNumber, String clientId) {
+        Account account = this.retrieveAccountDataById(accountId, clientId);
         if (account.getCreditCards().stream().anyMatch(card -> cardNumber.equals(card.getNumber()))) {
             throw new IllegalArgumentException(
                     format("Credit card number %s is already used for account %s", cardNumber, accountId));
@@ -181,8 +181,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void removeBeneficiary(String accountId, String beneficiaryName) {
-        Account account = this.retrieveAccountDataById(accountId);
+    public void removeBeneficiary(String accountId, String beneficiaryName, String clientId) {
+        Account account = this.retrieveAccountDataById(accountId, clientId);
         Set<Beneficiary> beneficiaries = account.getBeneficiaries();
         Optional<Beneficiary> deletedBeneficiary = beneficiaries.stream()
                 .filter(beneficiary -> beneficiary.getName().equalsIgnoreCase(beneficiaryName))
@@ -221,5 +221,45 @@ public class AccountServiceImpl implements AccountService {
         return this.accountRepository.findOneByClientId(clientId).map(
                 Account::getNumber
         ).orElseThrow(() -> new DataIntegrityViolationException("Cannot find account for authenticated user"));
+    }
+
+    @Override
+    @Transactional
+    public void updateUserAccount(AccountDTO account, String userId) {
+        String accountNumber = account.getNumber();
+        Optional<Account> accountOpt = this.accountRepository.findOneByNumberAndClientId(accountNumber, userId);
+
+        if (!accountOpt.isPresent()) {
+            throw new IllegalArgumentException("Invalid account number for client " + accountNumber);
+        }
+
+        Set<String> cards = account.getCreditCards();
+        if (!isEmpty(cards) && cards.stream().anyMatch(number -> this.accountRepository.findByCreditCardsNumber(number).isPresent())) {
+            throw new DataIntegrityViolationException("Credit card is already used for an other account !");
+        }
+
+        if (!isEmpty(account.getBeneficiaries()) && account.getBeneficiaries().size() == 1) {
+            account.getBeneficiaries().stream().findFirst().ifPresent(p -> p.setPercentage(Percentage.oneHundred().toString()));
+        }
+        Account accountEntity = accountOpt.get();
+
+        if (!isEmpty(account.getBeneficiaries())) {
+            this.validateBeneficiariesPercentage(account);
+            accountEntity.setBeneficiaries(this.beneficiaryMapper.toEntities(account.getBeneficiaries()));
+        }
+
+        if (!isEmpty(account.getCreditCards())) {
+            accountEntity.setCreditCards(account.getCreditCards().stream().map(e -> {
+                CreditCard c = new CreditCard();
+                c.setNumber(e);
+                return c;
+            }).collect(toSet()));
+        }
+
+        if (!account.getName().equals(accountEntity.getNumber())) {
+            accountEntity.setName(account.getName());
+        }
+        // to maintain entity version
+        this.accountRepository.save(accountEntity);
     }
 }

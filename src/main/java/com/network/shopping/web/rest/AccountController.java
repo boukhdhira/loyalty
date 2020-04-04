@@ -11,19 +11,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import java.security.Principal;
 import java.util.List;
 
 /**
  * A controller handling requests for CRUD operations on Accounts and their
  * Beneficiaries.
  */
-//TODO: all service with account number on param must be verified if authenticaed user is the ower of this account
+//TODO: all service with account number on param must be verified if authenticaed user is the ower of account param
 @RestController
 @RequestMapping("/api/v1/accounts")
 @Validated
@@ -42,6 +45,7 @@ public class AccountController {
 
     @GetMapping
     @ApiOperation(value = "retrieve list of all registered accounts", response = Page.class)
+    @PreAuthorize("hasRole('ADMIN')")
     public @ResponseBody
     Page<AccountDTO> accountSummary(Pageable pageable) {
         return this.accountService.getAllAccounts(pageable);
@@ -53,9 +57,17 @@ public class AccountController {
             @ApiResponse(code = 200, message = "Successfully retrieved account"),
             @ApiResponse(code = 404, message = "The account you were trying to reach is not found or id invalid")
     })
-    public ResponseEntity retrieveAccountDetailsByNumber(@PathVariable(name = "accountId") String number) {
+    public ResponseEntity retrieveAccountDetails(@PathVariable(name = "accountId") String number, Principal principal) {
         log.debug("Request to retrieve account by number= {}", number);
-        return ResponseEntity.ok(this.accountService.getUserAccountByNumber(number));
+        return ResponseEntity.ok(this.accountService.getUserAccountByNumber(number, principal.getName()));
+    }
+
+    @ApiOperation(value = "update account information")
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    public void updateAccount(@RequestBody @NotNull @Valid AccountDTO account, Principal principal) {
+        log.debug("Request to update account {} ", account);
+        this.accountService.updateUserAccount(account, principal.getName());
     }
 
 //    @ApiOperation(value = "Add a new account")
@@ -83,9 +95,10 @@ public class AccountController {
                                                       String accountId,
                                               @Valid @ApiParam(value = "list of account beneficiaries with there " +
                                                       "percentage", required = true) @NotEmpty(message = "Input beneficiaries list cannot be empty.")
-                                              @RequestBody List<@Valid BeneficiaryDTO> beneficiaryDTOS) {
+                                              @RequestBody List<@Valid BeneficiaryDTO> beneficiaryDTOS, Principal principal) {
         log.debug("Request to add {} beneficiaries to account number {} ", beneficiaryDTOS.size(), accountId);
-        return this.accountService.addBeneficiariesToAccount(accountId, beneficiaryDTOS);
+        String authenticatedUserId = principal.getName();
+        return this.accountService.addBeneficiariesToAccount(accountId, beneficiaryDTOS, authenticatedUserId);
     }
 
     /**
@@ -106,9 +119,10 @@ public class AccountController {
     public AccountDTO addCreditCardToAccount(@PathVariable @ApiParam(value = "Account identifier", required = true) String accountId,
                                              @NotBlank(message = "credit card number is mandatory")
                                              @ApiParam(value = "Card unique number", required = true)
-                                             @RequestBody String cardNumber) {
+                                             @RequestBody String cardNumber,
+                                             Principal principal) {
         log.debug("Request to add a credit card number={} to account number {} ", cardNumber, accountId);
-        return this.accountService.addCreditCardToAccount(accountId, cardNumber);
+        return this.accountService.addCreditCardToAccount(accountId, cardNumber, principal.getName());
     }
 
     /**
@@ -142,7 +156,9 @@ public class AccountController {
             @ApiResponse(code = 204, message = "Successfully deleting beneficiary for given account"),
             @ApiResponse(code = 402, message = "Invalid account id")})
     public void removeBeneficiary(@ApiParam(value = "account id ", required = true) @PathVariable String accountId
-            , @ApiParam(value = "beneficiary registered name", required = true) @PathVariable String beneficiaryName) {
-        this.accountService.removeBeneficiary(accountId, beneficiaryName);
+            , @ApiParam(value = "beneficiary registered name", required = true) @PathVariable String beneficiaryName,
+                                  Principal principal) {
+        this.accountService.removeBeneficiary(accountId, beneficiaryName, principal.getName());
     }
+    //TODO: add patch requests to handle percentage modification requests
 }

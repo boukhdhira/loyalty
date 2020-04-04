@@ -3,7 +3,6 @@ package com.network.shopping.domain;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -28,10 +27,11 @@ public class Account implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "serial")
     private Long id;
-    @NotNull
-    @Column(unique = true)
+
+    @Column(unique = true, nullable = false)
     private String number;
-    @NotNull
+
+    @Column(nullable = false)
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL,
@@ -44,9 +44,10 @@ public class Account implements Serializable {
             fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id", nullable = false, updatable = false)
     private Set<CreditCard> creditCards = new HashSet<>();
+
     @Version
     private int version;
-    @NotNull
-    @Column(name = "user_id")
+
+    @Column(name = "user_id", nullable = false)
     private String clientId;
 }

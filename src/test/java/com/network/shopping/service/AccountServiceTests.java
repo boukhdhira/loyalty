@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 public class AccountServiceTests {
     public static final String DEFAULT_FIRST_ACCOUNT_NUMBER = "123456789";
     public static final String TWENTY_PERCENTAGE = "20%";
+    public static final String DEFAULT_CLIENT_ID = "user";
     @Autowired
     private AccountRepository accountRepository;
 
@@ -44,7 +45,7 @@ public class AccountServiceTests {
         BeneficiaryDTO beneficiary2 = new BeneficiaryDTO();
         beneficiary2.setName(randomAlphabetic(20));
         beneficiary2.setPercentage(TWENTY_PERCENTAGE);
-        AccountDTO newAccountData = this.accountService.addBeneficiariesToAccount(DEFAULT_FIRST_ACCOUNT_NUMBER, asList(beneficiary1, beneficiary2));
+        AccountDTO newAccountData = this.accountService.addBeneficiariesToAccount(DEFAULT_FIRST_ACCOUNT_NUMBER, asList(beneficiary1, beneficiary2), DEFAULT_CLIENT_ID);
 
         assertAll(
                 () -> assertNotNull(newAccountData),
@@ -64,7 +65,7 @@ public class AccountServiceTests {
         beneficiary.setName(randomAlphabetic(20));
         beneficiary.setPercentage(TWENTY_PERCENTAGE);
         AccountDTO newAccountData = this.accountService.addBeneficiariesToAccount(DEFAULT_FIRST_ACCOUNT_NUMBER
-                , singletonList(beneficiary));
+                , singletonList(beneficiary), DEFAULT_CLIENT_ID);
 
         assertAll(
                 () -> assertNotNull(newAccountData),

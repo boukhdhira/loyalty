@@ -12,18 +12,20 @@ public interface AccountService {
 
     Page<AccountDTO> getAllAccounts(Pageable pageable);
 
-    AccountDTO getUserAccountByNumber(String number);
+    AccountDTO getUserAccountByNumber(String number, String clientId);
 
     AccountDTO createAccount(AccountDTO accountDTO);
 
     AccountDTO createAccount(String clientId);
 
-    AccountDTO addBeneficiariesToAccount(String accountId, List<BeneficiaryDTO> beneficiaryDTOS);
+    AccountDTO addBeneficiariesToAccount(String accountId, List<BeneficiaryDTO> beneficiaryDTOS, String clientId);
 
-    AccountDTO addCreditCardToAccount(String accountId, String cardNumber);
+    AccountDTO addCreditCardToAccount(String accountId, String cardNumber, String clientId);
 
-    void removeBeneficiary(String accountId, String beneficiaryName);
+    void removeBeneficiary(String accountId, String beneficiaryName, String clientId);
 
     String getAccountIdByClient(String clientId);
+
+    void updateUserAccount(AccountDTO account, String userId);
 }
 

@@ -1,5 +1,5 @@
-insert into T_ACCOUNT (NUMBER, NAME, VERSION) values ('123456789', 'Florent pan',0);
-insert into T_ACCOUNT (NUMBER, NAME, VERSION) values ('123456001', 'James R. Beauville',0);
+insert into T_ACCOUNT (NUMBER, NAME, USER_ID, VERSION) values ('123456789', 'Florent pan','user',0);
+insert into T_ACCOUNT (NUMBER, NAME, USER_ID, VERSION) values ('123456001', 'James R. Beauville','user',0);
 
 
 insert into T_ACCOUNT_CREDIT_CARD (ACCOUNT_ID, NUMBER) values (
