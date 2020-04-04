@@ -31,6 +31,7 @@ public class Beneficiary implements Serializable {
     @NotNull
     private String name;
 
+    @Column(precision = 3, scale = 2)
     private BigDecimal allocationPercentage;
 
     private BigDecimal savings;

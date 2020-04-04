@@ -1,0 +1,18 @@
+insert into T_ACCOUNT (NUMBER, NAME, USER_ID, VERSION) values ('123456789', 'Florent pan','user',0);
+insert into T_ACCOUNT (NUMBER, NAME, USER_ID, VERSION) values ('123456001', 'James R. Beauville','user',0);
+
+
+insert into T_ACCOUNT_CREDIT_CARD (ACCOUNT_ID, NUMBER) values (
+    select ID from T_ACCOUNT where NUMBER = '123456789', '1234123412341234');
+insert into T_ACCOUNT_CREDIT_CARD (ACCOUNT_ID, NUMBER) values (
+    select ID from T_ACCOUNT where NUMBER = '123456001', '1234123412340001');
+
+
+insert into T_ACCOUNT_BENEFICIARY (ACCOUNT_ID, NAME, ALLOCATION_PERCENTAGE, SAVINGS)
+	values (select ID from T_ACCOUNT where NUMBER = '123456789', 'Eric', .6, 0.00);
+insert into T_ACCOUNT_BENEFICIARY (ACCOUNT_ID, NAME, ALLOCATION_PERCENTAGE, SAVINGS)
+	values (select ID from T_ACCOUNT where NUMBER = '123456789', 'Dana', .4, 0.00);
+
+
+--insert into T_STORE (MERCHANT_NUMBER, NAME, BENEFITS_PERCENTAGE, BENEFITS_AVAILABILITY_POLICY)
+----	values ('1234567890', 'Gant-Z', .08, 'A');

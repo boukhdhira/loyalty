@@ -3,6 +3,7 @@ package com.network.shopping.domain;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "t_store")
@@ -20,7 +21,7 @@ public class Store implements Serializable {
     private String name;
 
     @NotNull
-    private String benefitsPercentage;
+    private BigDecimal benefitsPercentage;
 
     private String benefitsAvailabilityPolicy;
 }

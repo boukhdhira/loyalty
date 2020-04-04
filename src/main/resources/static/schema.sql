@@ -17,7 +17,7 @@ id serial primary key ,
 account_id integer references t_account(id) On delete cascade,
 name VARCHAR(50) NOT NULL,
 allocation_percentage numeric (5, 2) not null,
-savings numeric (5, 2) not null
+savings numeric (10, 2) not null
 );
 
 create table if not exists t_store (
@@ -38,3 +38,7 @@ product_number varchar (9) not null,
 shopping_amount numeric (5, 2) not null,
 shopping_date date not null
 );
+
+--TODO: create script of init user /roles datatable
+--INSERT INTO t_role(	id, name)	VALUES (1, 'USER');
+--INSERT INTO t_role(	id, name)	VALUES (2, 'ADMIN');
