@@ -13,4 +13,6 @@ public class MailProperties {
     String activationTemplate;
     String baseUrl;
     String resourcesPath;
+    String bonusSubject;
+    String bonusTemplate;
 }

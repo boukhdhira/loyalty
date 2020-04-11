@@ -1,12 +1,9 @@
 package com.network.shopping.web.rest;
 
-import com.network.shopping.config.Constants;
 import com.network.shopping.service.UserService;
 import com.network.shopping.service.dto.UserDTO;
 import com.network.shopping.service.utils.RestRequestUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,13 +54,9 @@ public class UserController {
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation("Register a new user account")
-    //@PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public void createUser(@Valid @RequestBody @NonNull @ApiParam(value = "user data information")
                                    UserDTO userDTO) {
         log.debug("REST request to save User : {}", userDTO);
-        if (this.checkPasswordLength(userDTO.getPassword())) {
-            throw new IllegalArgumentException("Password don't match required size");
-        }
         this.userService.createUser(userDTO);
     }
 
@@ -71,12 +64,12 @@ public class UserController {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation("Register a new administrator")
     @PreAuthorize("hasRole('ADMIN')")
-    public void createAdministratorUser(@Valid @RequestBody @ApiParam(value = "user data information")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successfully added new administrator account"),
+            @ApiResponse(code = 400, message = "Validation failed for data")})
+    public void createAdministratorUser(@Valid @RequestBody @ApiParam(value = "admin information")
                                                 UserDTO userDTO) {
         log.debug("REST request to save administrator : {}", userDTO);
-        if (this.checkPasswordLength(userDTO.getPassword())) {
-            throw new IllegalArgumentException("Password don't match required size");
-        }
         userDTO.setAdministrator(true);
         this.userService.createUser(userDTO);
     }
@@ -110,6 +103,13 @@ public class UserController {
     }
 
     //TODO: on peut developpeur un CRON job qui regenere des activations key si l'utilsateur n'as pas encore validé son enregistrement
+
+    /**
+     * {@code GET /activate} : Confirm account mail & activate account.
+     *
+     * @param key the identifier of created account.
+     * @return void with status {@code 200 (ok)}.
+     */
     @GetMapping("/activate")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Activate user account by token", notes = "token must be valid and not expired")
@@ -120,9 +120,15 @@ public class UserController {
         this.userService.activateRegistration(key);
     }
 
-    private boolean checkPasswordLength(String password) {
-        return isEmpty(password) ||
-                password.length() < Constants.PASSWORD_MIN_LENGTH ||
-                password.length() > Constants.PASSWORD_MAX_LENGTH;
-    }
+    /**
+     * check password length
+     *
+     * @param password user password
+     * @return True when password length is accepted
+     */
+//    private boolean checkPasswordLength(String password) {
+//        return isEmpty(password) ||
+//                password.length() < Constants.PASSWORD_MIN_LENGTH ||
+//                password.length() > Constants.PASSWORD_MAX_LENGTH;
+//    }
 }

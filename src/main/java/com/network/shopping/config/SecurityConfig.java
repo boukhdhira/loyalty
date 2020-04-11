@@ -33,8 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtAuthAccessDeniedEntryPoint accessDeniedHandler;
 
-    public SecurityConfig(UserDetailsService jwtUserDetailsService
-            , JwtFilter jwtRequestFilter, JwtAuthEntryPoint unauthorizedHandler, JwtAuthAccessDeniedEntryPoint accessDeniedHandler) {
+    public SecurityConfig(final UserDetailsService jwtUserDetailsService
+            , final JwtFilter jwtRequestFilter, final JwtAuthEntryPoint unauthorizedHandler, final JwtAuthAccessDeniedEntryPoint accessDeniedHandler) {
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.jwtRequestFilter = jwtRequestFilter;
         this.unauthorizedHandler = unauthorizedHandler;
@@ -47,7 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * Use BCryptPasswordEncoder to encode user password
      */
     @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(this.jwtUserDetailsService)
                 .passwordEncoder(this.passwordEncoder());
     }
@@ -64,7 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    protected void configure(final HttpSecurity http) throws Exception {
         http
                 .cors().and()
                 .csrf().disable()
@@ -74,13 +74,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // don't authenticate this particular request
                 .authorizeRequests()
+                .antMatchers("/api/v1/management/**").hasAuthority("ROLE_ADMIN")
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
                 .antMatchers("/api/v1/signup").permitAll()
                 .antMatchers("/api/v1/activate").permitAll()
-                //.antMatchers("/signup/admin").hasRole("ADMIN")
+                .antMatchers("/api/v1/bonus").permitAll()
                 .antMatchers("/api/signin").permitAll()
                 .anyRequest().authenticated()
-                //.antMatchers("/management/**").hasAuthority(RoleEnum.ADMIN.name())
                 // make sure we use stateless session; session won't be used to store user's state.
                 .and()
                 .sessionManagement()

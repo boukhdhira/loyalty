@@ -26,6 +26,8 @@ public class UserDTO implements Serializable {
 
     @ApiModelProperty(required = true, name = "user password credential")
     @NotBlank(message = "password is mandatory")
+    @Size(max = Constants.PASSWORD_MAX_LENGTH, min = Constants.PASSWORD_MIN_LENGTH,
+            message = "Password don't match required size")
     private String password;
 
     @ApiModelProperty(required = true, name = "user first name")

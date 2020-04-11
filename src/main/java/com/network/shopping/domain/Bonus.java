@@ -1,12 +1,11 @@
 package com.network.shopping.domain;
 
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Date;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "t_bonus")
@@ -19,23 +18,25 @@ public class Bonus implements Serializable {
     @Column(columnDefinition = "serial")
     private Long id;
 
-    @CreationTimestamp
-    private Date bonusDate;
+    //@CreationTimestamp -> compliqué pour les tests unitaire de plus elle est utilisé pour l'audit
+    @Column(name = "bonus_date")
+    private LocalDate bonusDate;
 
-    private Date shoppingDate;
+    @Column(nullable = false, name = "shopping_date")
+    private LocalDate shoppingDate;
 
-    @NotNull
+    @Column(nullable = false, unique = true, name = "confirmation_number")
     private String confirmationNumber;
 
-    @NotNull
-    private double bonusAmount;
+    @Column(nullable = false, name = "bonus_amount")
+    private BigDecimal bonusAmount;
 
-    @NotNull
+    @Column(nullable = false, name = "account_number")
     private String accountNumber;
 
-    @NotNull
+    @Column(nullable = false, name = "product_number")
     private String productNumber;
 
-    @NotNull
-    private double shoppingAmount;
+    @Column(nullable = false, name = "shopping_amount")
+    private BigDecimal shoppingAmount;
 }

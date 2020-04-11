@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title> Bonus notification </title>
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+</head>
+<body>
+<p>Dear, </p>
+<p>
+    Our management center has processed your request for bonus shopping.</p>
+<p>
+    Serious with your last purchase of amount <span th:text="${shoppingAmount}"></span> € you have earned of
+    <span th:text="${bonusAmount}"></span> € that has been distributed at the
+    account of your beneficiaries.
+</p>
+<p>
+    We would like to thank you for your trust and your loyalty and we remain attentive to strengthen our collaboration.
+</p>
+<p>
+    Regards,
+    <br/>
+    <em>loyaltY team.</em>
+</p>
+</body>
+</html>

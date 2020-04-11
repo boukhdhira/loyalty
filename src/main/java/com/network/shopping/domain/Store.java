@@ -1,11 +1,13 @@
 package com.network.shopping.domain;
 
+import lombok.Data;
+
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Entity
+@Data
 @Table(name = "t_store")
 public class Store implements Serializable {
     private static final long serialVersionUID = -1854283599358423202L;
@@ -14,14 +16,15 @@ public class Store implements Serializable {
     @Column(columnDefinition = "serial")
     private Long id;
 
-    @NotNull
+    @Column(nullable = false, unique = true, length = 10)
     private String merchantNumber;
 
-    @NotNull
+    @Column(nullable = false)
     private String name;
 
-    @NotNull
+    @Column(nullable = false)
     private BigDecimal benefitsPercentage;
 
+    @Column(nullable = false)
     private String benefitsAvailabilityPolicy;
 }

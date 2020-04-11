@@ -5,7 +5,6 @@ import com.network.shopping.repository.AccountRepository;
 import com.network.shopping.service.dto.AccountDTO;
 import com.network.shopping.service.dto.BeneficiaryDTO;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -61,7 +60,7 @@ public class AccountControllerTest {
     private AccountRepository repository;
 
     public static Account createEntity() {
-        Account defaultAccount = new Account();
+        final Account defaultAccount = new Account();
         defaultAccount.setName(DEFAULT_FIRST_ACCOUNT_NAME);
         defaultAccount.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
         defaultAccount.setClientId(DEFAULT_CLIENT_ID);
@@ -85,10 +84,10 @@ public class AccountControllerTest {
     @Transactional
     public void shouldUpdateExistingAccount() throws Exception {
         this.repository.save(createEntity());
-        AccountDTO account = new AccountDTO();
+        final AccountDTO account = new AccountDTO();
         account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
         account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
-        BeneficiaryDTO beneficiary = new BeneficiaryDTO();
+        final BeneficiaryDTO beneficiary = new BeneficiaryDTO();
         beneficiary.setPercentage("80%");
         beneficiary.setName("Alia");
         account.setBeneficiaries(singleton(beneficiary));
@@ -100,18 +99,20 @@ public class AccountControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        Account createdUser = this.repository.findOneByNumber(DEFAULT_FIRST_ACCOUNT_NUMBER).orElse(null);
+        final Account createdUser = this.repository.findOneByNumber(DEFAULT_FIRST_ACCOUNT_NUMBER).orElse(null);
         assertNotNull(createdUser);
-        Assertions.assertThat(createdUser.getNumber()).isEqualTo(DEFAULT_FIRST_ACCOUNT_NUMBER);
-        Assertions.assertThat(createdUser.getName()).isEqualTo(DEFAULT_FIRST_ACCOUNT_NAME);
-        Assertions.assertThat(createdUser.getVersion()).isEqualTo(1);
-        Assertions.assertThat(createdUser.getCreditCards()).isNotEmpty();
-        Assertions.assertThat(createdUser.getCreditCards().size()).isEqualTo(1);
-        Assertions.assertThat(createdUser.getCreditCards().stream().findFirst().get().getNumber()).isEqualTo("0522220");
-        Assertions.assertThat(createdUser.getBeneficiaries()).isNotEmpty();
-        Assertions.assertThat(createdUser.getBeneficiaries().size()).isEqualTo(1);
+        assertAll("user",
+                () -> assertEquals(DEFAULT_FIRST_ACCOUNT_NUMBER, createdUser.getNumber()),
+                () -> assertEquals(DEFAULT_FIRST_ACCOUNT_NAME, createdUser.getName()),
+                () -> assertEquals(1, createdUser.getVersion()),
+                () -> assertFalse(createdUser.getCreditCards().isEmpty()),
+                () -> assertEquals(1, createdUser.getCreditCards().size()),
+                () -> assertEquals("0522220", createdUser.getCreditCards().stream().findFirst().get().getNumber()),
+                () -> assertFalse(createdUser.getBeneficiaries().isEmpty()),
+                () -> assertEquals(1, createdUser.getBeneficiaries().size()),
+                () -> assertEquals("Alia", createdUser.getBeneficiaries().stream().findFirst().get().getName())
+        );
         //Assertions.assertThat(createdUser.getBeneficiaries().stream().findFirst().get().getAllocationPercentage()).isEqualTo(new BigDecimal(100));
-        Assertions.assertThat(createdUser.getBeneficiaries().stream().findFirst().get().getName()).isEqualTo("Alia");
     }
 
     @WithMockUser(value = DEFAULT_ADMINISTRATOR, roles = {"ADMIN"})
@@ -131,12 +132,12 @@ public class AccountControllerTest {
     @Transactional
     public void testDeleteAccountByValidId() throws Exception {
         this.repository.saveAndFlush(createEntity());
-        int accountCountBefore = this.repository.findAll().size();
+        final int accountCountBefore = this.repository.findAll().size();
         this.restMockMvc.perform(MockMvcRequestBuilders
                 .delete("/api/v1/accounts/{accountId}", DEFAULT_FIRST_ACCOUNT_NUMBER)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        List<Account> emptyList = this.repository.findAll();
+        final List<Account> emptyList = this.repository.findAll();
         assertThat(accountCountBefore, is(1));
         assertThat(emptyList, empty());
     }
@@ -149,7 +150,7 @@ public class AccountControllerTest {
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(value = DEFAULT_USER)
     void shouldReturnConflictRequestWhenAccountNumberAlreadyUsed() throws Exception {
-        AccountDTO account = new AccountDTO();
+        final AccountDTO account = new AccountDTO();
         account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
         account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
 
@@ -167,7 +168,7 @@ public class AccountControllerTest {
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(value = DEFAULT_USER)
     void shouldReturnConflictRequestWhenCreditCardNumberIsAlreadyUsedForOtherAccount() throws Exception {
-        AccountDTO account = new AccountDTO();
+        final AccountDTO account = new AccountDTO();
         account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
         account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
         account.setCreditCards(singleton(DEFAULT_CREDIT_CARD_NUMBER));
@@ -189,7 +190,7 @@ public class AccountControllerTest {
                 DEFAULT_FIRST_ACCOUNT_NUMBER, DEFAULT_BENEFICIARY_NAME)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
-        Optional<Account> account = this.repository.findOneByNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
+        final Optional<Account> account = this.repository.findOneByNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
         assertTrue(account.isPresent());
         //assertThat(account.map(b -> b.getBeneficiaries().size()).orElse(0), equalTo(1));
     }
@@ -197,7 +198,7 @@ public class AccountControllerTest {
     @WithMockUser(value = DEFAULT_USER)
     @Test
     void shouldReturnBadRequestWhenInputDataHasInvalidFormat() throws Exception {
-        AccountDTO account = new AccountDTO();
+        final AccountDTO account = new AccountDTO();
         account.setName("");
         account.setNumber(OTHER_FIRST_ACCOUNT_NUMBER);
 
@@ -207,7 +208,7 @@ public class AccountControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        AccountDTO secondAccount = new AccountDTO();
+        final AccountDTO secondAccount = new AccountDTO();
         secondAccount.setName(DEFAULT_FIRST_ACCOUNT_NAME);
 
         this.restMockMvc.perform(MockMvcRequestBuilders.put("/api/v1/accounts")
@@ -216,7 +217,7 @@ public class AccountControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
-        AccountDTO thirdAccount = new AccountDTO();
+        final AccountDTO thirdAccount = new AccountDTO();
         thirdAccount.setName(DEFAULT_FIRST_ACCOUNT_NAME);
         thirdAccount.setNumber(RandomStringUtils.random(5));
 
@@ -232,15 +233,15 @@ public class AccountControllerTest {
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void shouldReturnBadRequestWhenBeneficiariesHasASumOfAllocationPercentageGreaterThen100() throws Exception {
-        BeneficiaryDTO beneficiary1 = new BeneficiaryDTO();
+        final BeneficiaryDTO beneficiary1 = new BeneficiaryDTO();
         beneficiary1.setPercentage("80%");
         beneficiary1.setName(randomAlphabetic(20));
 
-        BeneficiaryDTO beneficiary2 = new BeneficiaryDTO();
+        final BeneficiaryDTO beneficiary2 = new BeneficiaryDTO();
         beneficiary2.setPercentage("40%");
         beneficiary2.setName(randomAlphabetic(20));
 
-        AccountDTO account = new AccountDTO();
+        final AccountDTO account = new AccountDTO();
         account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
         account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
         account.setBeneficiaries(newHashSet(beneficiary1, beneficiary2));

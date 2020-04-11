@@ -1,4 +1,4 @@
-package com.network.shopping.service.dto;
+package com.network.shopping.service.event;
 
 import com.network.shopping.domain.User;
 import org.springframework.context.ApplicationEvent;
@@ -11,7 +11,7 @@ public class OnRegistrationCompleteEvent extends ApplicationEvent {
     private final User user;
 
     public OnRegistrationCompleteEvent(
-            User user) {
+            final User user) {
         super(user);
 
         this.user = user;

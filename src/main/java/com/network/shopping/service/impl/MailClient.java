@@ -41,8 +41,8 @@ public class MailClient {
     private final ResourceLoader resourceLoader;
 
     @Autowired
-    public MailClient(JavaMailSender mailSender, MailContentBuilder mailContentBuilder
-            , MailProperties mailProperties, ResourceLoader resourceLoader) {
+    public MailClient(final JavaMailSender mailSender, final MailContentBuilder mailContentBuilder
+            , final MailProperties mailProperties, final ResourceLoader resourceLoader) {
         this.mailSender = mailSender;
         this.mailContentBuilder = mailContentBuilder;
         this.mailProperties = mailProperties;
@@ -50,19 +50,19 @@ public class MailClient {
     }
 
     @Async
-    public void prepareAndSendActivation(@NonNull MailRequest mailRequest) throws MessagingException, IOException {
-        String recipientAddress = mailRequest.getRecipient();
+    public void prepareAndSendActivation(@NonNull final MailRequest mailRequest) throws MessagingException, IOException {
+        final String recipientAddress = mailRequest.getRecipient();
         if (isNull(recipientAddress)) {
             log.error("recipient address cannot be empty ");
             throw new IOException("Recipient address is empty");
         }
-        String activationKey = (String) mailRequest.getProps().get(ACTIVATION_KEY);
+        final String activationKey = (String) mailRequest.getProps().get(ACTIVATION_KEY);
         if (isBlank(activationKey)) {
             log.error("Activation key is not generated for id= {} ", recipientAddress);
             throw new IOException("Activation key is not generated");
         }
 
-        String mailContent = this.mailContentBuilder.build(mailRequest, this.mailProperties.getActivationTemplate(),
+        final String mailContent = this.mailContentBuilder.build(mailRequest, this.mailProperties.getActivationTemplate(),
                 this.mailProperties.getBaseUrl());
         this.prepareAndSendWithTemplate(recipientAddress
                 , mailRequest.getCc(),
@@ -72,10 +72,28 @@ public class MailClient {
         log.debug("Activation mail was sent to {}", recipientAddress);
     }
 
-    private void prepareAndSendWithTemplate(String to, List<String> cc, String subject, String content,
-                                            Map<String, String> attachments) throws MessagingException {
-        MimeMessage message = this.mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+    @Async
+    public void prepareAndSendBonus(@NonNull final MailRequest mailRequest) throws MessagingException, IOException {
+        final String recipientAddress = mailRequest.getRecipient();
+        if (isNull(recipientAddress)) {
+            log.error("recipient address cannot be empty ");
+            throw new IOException("Recipient address is empty");
+        }
+
+        final String mailContent = this.mailContentBuilder.build(mailRequest, this.mailProperties.getBonusTemplate(),
+                this.mailProperties.getBaseUrl());
+        this.prepareAndSendWithTemplate(recipientAddress
+                , mailRequest.getCc(),
+                this.mailProperties.getBonusSubject()
+                , mailContent
+                , new HashMap<>());
+        log.debug("Bonus notification mail was sent to {}", recipientAddress);
+    }
+
+    private void prepareAndSendWithTemplate(final String to, final List<String> cc, final String subject, final String content,
+                                            final Map<String, String> attachments) throws MessagingException {
+        final MimeMessage message = this.mailSender.createMimeMessage();
+        final MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
                 StandardCharsets.UTF_8.name());
         helper.setTo(to);
         if (!isEmpty(cc)) {
@@ -87,7 +105,7 @@ public class MailClient {
         attachments.forEach((key, value) -> {
             try {
                 helper.addAttachment(key, new ClassPathResource(value));
-            } catch (MessagingException e) {
+            } catch (final MessagingException e) {
                 log.warn("Resource not found: {}", e.getMessage());
             }
         });
@@ -102,7 +120,7 @@ public class MailClient {
      * @param contentType image type. example: MediaType.IMAGE_PNG_VALUE
      * @param contentId   image template identifier into cid tag
      */
-    private void addImageToMail(MimeMessageHelper helper, String image, String contentType, String contentId) throws MessagingException {
+    private void addImageToMail(final MimeMessageHelper helper, final String image, final String contentType, final String contentId) throws MessagingException {
         helper.addInline(contentId, new ClassPathResource(this.mailProperties.getResourcesPath().concat(image)), contentType);
         //MediaType.IMAGE_PNG_VALUE
     }
@@ -114,8 +132,8 @@ public class MailClient {
      * @param pathToAttachment file attachment path
      * @throws MessagingException when file it not found or does'nt have access privilege.
      */
-    private void addAttachment(MimeMessageHelper helper, String pathToAttachment) throws MessagingException {
-        FileSystemResource file
+    private void addAttachment(final MimeMessageHelper helper, final String pathToAttachment) throws MessagingException {
+        final FileSystemResource file
                 = new FileSystemResource(new File(pathToAttachment));
         helper.addAttachment(file.getFilename(), file);
     }

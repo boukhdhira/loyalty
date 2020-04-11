@@ -65,6 +65,9 @@ public class AccountController {
     @ApiOperation(value = "update account information")
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully updated account"),
+            @ApiResponse(code = 400, message = "Validation failed for account data")})
     public void updateAccount(@RequestBody @NotNull @Valid AccountDTO account, Principal principal) {
         log.debug("Request to update account {} ", account);
         this.accountService.updateUserAccount(account, principal.getName());
