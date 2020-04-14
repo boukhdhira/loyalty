@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 
-import static com.network.shopping.config.Constants.TOKEN_EXPIRATION;
+import static com.network.shopping.config.Constants.TOKEN_EXPIRATION_MINUTES;
 
 @Service
 @Slf4j
@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
      * @return created entity
      */
     @Override
-    public UserDTO createUser(final UserDTO userDTO) {
+    public UserDTO createUserAccount(final UserDTO userDTO) {
         if (this.userRepository.findOneByUsername(userDTO.getUsername().toLowerCase()).isPresent()) {
             throw new IllegalArgumentException(userDTO.getUsername() + ": user name  is already used for other account");
         }
@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
         final Optional<ConfirmationToken> tokenRecord = this.tokenRepository.findByToken(key);
         final User user = tokenRecord.map(token -> {
             if (this.isExpired(token)) {
-                throw new DataIntegrityViolationException("Token is expired");
+                throw new DataIntegrityViolationException("Token was expired");
             }
             return token.getUser();
         }).orElseThrow(() -> new IllegalArgumentException("Invalid activation key"));
@@ -106,7 +106,7 @@ public class UserServiceImpl implements UserService {
     private Date calculateExpiryDate(final Date creationDate) {
         final Calendar cal = Calendar.getInstance();
         cal.setTime(creationDate);
-        cal.add(Calendar.MINUTE, TOKEN_EXPIRATION);
+        cal.add(Calendar.MINUTE, TOKEN_EXPIRATION_MINUTES);
         return new Date(cal.getTime().getTime());
     }
 }

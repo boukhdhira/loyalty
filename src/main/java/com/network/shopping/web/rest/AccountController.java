@@ -26,7 +26,6 @@ import java.util.List;
  * A controller handling requests for CRUD operations on Accounts and their
  * Beneficiaries.
  */
-//TODO: all service with account number on param must be verified if authenticaed user is the ower of account param
 @RestController
 @RequestMapping("/api/v1/accounts")
 @Validated
@@ -39,7 +38,7 @@ public class AccountController {
     @Value("${application.name}")
     private String applicationName;
 
-    public AccountController(AccountService accountService) {
+    public AccountController(final AccountService accountService) {
         this.accountService = accountService;
     }
 
@@ -47,7 +46,7 @@ public class AccountController {
     @ApiOperation(value = "retrieve list of all registered accounts", response = Page.class)
     @PreAuthorize("hasRole('ADMIN')")
     public @ResponseBody
-    Page<AccountDTO> accountSummary(Pageable pageable) {
+    Page<AccountDTO> accountSummary(final Pageable pageable) {
         return this.accountService.getAllAccounts(pageable);
     }
 
@@ -57,7 +56,7 @@ public class AccountController {
             @ApiResponse(code = 200, message = "Successfully retrieved account"),
             @ApiResponse(code = 404, message = "The account you were trying to reach is not found or id invalid")
     })
-    public ResponseEntity retrieveAccountDetails(@PathVariable(name = "accountId") String number, Principal principal) {
+    public ResponseEntity retrieveAccountDetails(@PathVariable(name = "accountId") final String number, final Principal principal) {
         log.debug("Request to retrieve account by number= {}", number);
         return ResponseEntity.ok(this.accountService.getUserAccountByNumber(number, principal.getName()));
     }
@@ -68,7 +67,7 @@ public class AccountController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully updated account"),
             @ApiResponse(code = 400, message = "Validation failed for account data")})
-    public void updateAccount(@RequestBody @NotNull @Valid AccountDTO account, Principal principal) {
+    public void updateAccount(@RequestBody @NotNull @Valid final AccountDTO account, final Principal principal) {
         log.debug("Request to update account {} ", account);
         this.accountService.updateUserAccount(account, principal.getName());
     }
@@ -94,13 +93,13 @@ public class AccountController {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successfully save a new beneficiary for given account"),
             @ApiResponse(code = 400, message = "Validation failed for beneficiary data or account id")})
-    public AccountDTO addBeneficiaryToAccount(@PathVariable @ApiParam(value = "account identifier", required = true)
-                                                      String accountId,
+    public AccountDTO addBeneficiaryToAccount(@PathVariable @ApiParam(value = "account identifier", required = true) final
+                                              String accountId,
                                               @Valid @ApiParam(value = "list of account beneficiaries with there " +
                                                       "percentage", required = true) @NotEmpty(message = "Input beneficiaries list cannot be empty.")
-                                              @RequestBody List<@Valid BeneficiaryDTO> beneficiaryDTOS, Principal principal) {
+                                              @RequestBody final List<@Valid BeneficiaryDTO> beneficiaryDTOS, final Principal principal) {
         log.debug("Request to add {} beneficiaries to account number {} ", beneficiaryDTOS.size(), accountId);
-        String authenticatedUserId = principal.getName();
+        final String authenticatedUserId = principal.getName();
         return this.accountService.addBeneficiariesToAccount(accountId, beneficiaryDTOS, authenticatedUserId);
     }
 
@@ -119,11 +118,11 @@ public class AccountController {
             @ApiResponse(code = 201, message = "Successfully attache a new credit card number for given account"),
             @ApiResponse(code = 409, message = "Credit card number already used for other account"),
             @ApiResponse(code = 400, message = "Validation failed for beneficiary data or account id")})
-    public AccountDTO addCreditCardToAccount(@PathVariable @ApiParam(value = "Account identifier", required = true) String accountId,
+    public AccountDTO addCreditCardToAccount(@PathVariable @ApiParam(value = "Account identifier", required = true) final String accountId,
                                              @NotBlank(message = "credit card number is mandatory")
                                              @ApiParam(value = "Card unique number", required = true)
-                                             @RequestBody String cardNumber,
-                                             Principal principal) {
+                                             @RequestBody final String cardNumber,
+                                             final Principal principal) {
         log.debug("Request to add a credit card number={} to account number {} ", cardNumber, accountId);
         return this.accountService.addCreditCardToAccount(accountId, cardNumber, principal.getName());
     }
@@ -141,7 +140,7 @@ public class AccountController {
             @ApiResponse(code = 402, message = "Invalid account id")})
     // @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteAccount(@PathVariable(name = "accountId")
-                                              @ApiParam(value = "account id ", required = true) String number) {
+                                              @ApiParam(value = "account id ", required = true) final String number) {
         log.debug("REST request to delete account: {}", number);
         this.accountService.deleteAccount(number);
         return ResponseEntity.noContent().headers(RestRequestUtils.createAlert(
@@ -158,10 +157,18 @@ public class AccountController {
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "Successfully deleting beneficiary for given account"),
             @ApiResponse(code = 402, message = "Invalid account id")})
-    public void removeBeneficiary(@ApiParam(value = "account id ", required = true) @PathVariable String accountId
-            , @ApiParam(value = "beneficiary registered name", required = true) @PathVariable String beneficiaryName,
-                                  Principal principal) {
+    public void removeBeneficiary(@ApiParam(value = "account id ", required = true) @PathVariable final String accountId
+            , @ApiParam(value = "beneficiary registered name", required = true) @PathVariable final String beneficiaryName,
+                                  final Principal principal) {
         this.accountService.removeBeneficiary(accountId, beneficiaryName, principal.getName());
     }
-    //TODO: add patch requests to handle percentage modification requests
+
+    @PatchMapping(value = "/{accountId}/beneficiaries/{beneficiaryName}")
+    public ResponseEntity modifyBeneficiaryPercentage(@ApiParam(value = "account id ", required = true) @PathVariable final String accountId
+            , @ApiParam(value = "beneficiary registered name", required = true) @PathVariable final String beneficiaryName,
+                                                      @RequestBody @NotNull @Valid final BeneficiaryDTO beneficiary,
+                                                      final Principal principal) {
+        this.accountService.updateBeneficiaryPercentage(accountId, beneficiaryName, beneficiary, principal.getName());
+        return ResponseEntity.ok("beneficiary percentage updated");
+    }
 }

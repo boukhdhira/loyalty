@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface UserService {
 
-    UserDTO createUser(UserDTO userDTO);
+    UserDTO createUserAccount(UserDTO userDTO);
 
     void deleteUser(String username);
 

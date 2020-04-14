@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.network.shopping.config.Constants.ACTIVATION_KEY;
+import static com.network.shopping.config.Constants.*;
 
 @Component
 @Slf4j
@@ -74,6 +74,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
         final Map<String, Object> props = new HashMap<>();
         props.put(USER_NAME, user.getLastName());
         props.put(ACTIVATION_KEY, token);
+        props.put(TOKEN_EXPIRATION, TOKEN_EXPIRATION_MINUTES);
         request.setProps(props);
         try {
             this.mailClient.prepareAndSendActivation(request);

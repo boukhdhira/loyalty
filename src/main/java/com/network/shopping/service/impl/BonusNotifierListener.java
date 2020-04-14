@@ -19,8 +19,8 @@ import java.util.Map;
 @Component
 @Slf4j
 public class BonusNotifierListener implements ApplicationListener<OnBonusComputedEvent> {
-    public static final String BONUS_AMOUNT = "bonusAmount";
-    public static final String SHOPPING_AMOUNT = "shoppingAmount";
+    private static final String BONUS_AMOUNT = "bonusAmount";
+    private static final String SHOPPING_AMOUNT = "shoppingAmount";
     private final MailClient mailClient;
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
@@ -55,6 +55,6 @@ public class BonusNotifierListener implements ApplicationListener<OnBonusCompute
     private String getReceptionAddress(final String accountId) {
         return this.accountRepository.findOneByNumber(accountId)
                 .flatMap(account -> this.userRepository.findOneByUsername(account.getClientId()))
-                .map(User::getEmail).orElseThrow(() -> new IllegalStateException("unrecognized account "));
+                .map(User::getEmail).orElseThrow(() -> new IllegalStateException("unrecognized account"));
     }
 }

@@ -27,5 +27,7 @@ public interface AccountService {
     String getAccountIdByClient(String clientId);
 
     void updateUserAccount(AccountDTO account, String userId);
+
+    void updateBeneficiaryPercentage(String accountId, String beneficiaryName, BeneficiaryDTO beneficiary, String clientId);
 }
 

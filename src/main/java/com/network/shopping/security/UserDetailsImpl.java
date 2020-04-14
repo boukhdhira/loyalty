@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
  * User’s information such as username, password, authorities
  * to store/retrieve into the authentication object.
  */
-// TODO: activate user and dynamically recuperate flags from db
 @Data
 public class UserDetailsImpl implements UserDetails {
     private static final long serialVersionUID = -8010520244808886197L;
@@ -32,8 +31,8 @@ public class UserDetailsImpl implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long id, String username, String email, String password, boolean enabled,
-                           Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(final Long id, final String username, final String email, final String password, final boolean enabled,
+                           final Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -42,8 +41,8 @@ public class UserDetailsImpl implements UserDetails {
         this.enabled = enabled;
     }
 
-    public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorities = user.getRoles().stream()
+    public static UserDetailsImpl build(final User user) {
+        final List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .collect(Collectors.toList());
 

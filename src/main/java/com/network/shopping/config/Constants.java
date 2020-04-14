@@ -8,5 +8,10 @@ public final class Constants {
     public static final int PASSWORD_MAX_LENGTH = 20;
     public static final String ACTIVATION_KEY = "activationKey";
     public static final String DEFAULT_ACCOUNT_NAME = "LoyaltY";
-    public static final int TOKEN_EXPIRATION = 60 * 24;
+    public static final int TOKEN_EXPIRATION_MINUTES = 30;
+    public static final String TOKEN_EXPIRATION = "tokenExpiration";
+
+    //To disable the public one
+    private Constants() {
+    }
 }

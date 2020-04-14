@@ -20,9 +20,6 @@ import javax.validation.Valid;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-/**
- * TODO: rattach user to an account
- */
 @RestController
 @RequestMapping("/api/v1")
 @Slf4j
@@ -35,7 +32,7 @@ public class UserController {
     private String applicationName;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(final UserService userService) {
         this.userService = userService;
     }
 
@@ -54,10 +51,10 @@ public class UserController {
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation("Register a new user account")
-    public void createUser(@Valid @RequestBody @NonNull @ApiParam(value = "user data information")
-                                   UserDTO userDTO) {
+    public void createUser(@Valid @RequestBody @NonNull @ApiParam(value = "user data information") final
+                           UserDTO userDTO) {
         log.debug("REST request to save User : {}", userDTO);
-        this.userService.createUser(userDTO);
+        this.userService.createUserAccount(userDTO);
     }
 
     @PostMapping("/users/admin")
@@ -67,11 +64,11 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successfully added new administrator account"),
             @ApiResponse(code = 400, message = "Validation failed for data")})
-    public void createAdministratorUser(@Valid @RequestBody @ApiParam(value = "admin information")
-                                                UserDTO userDTO) {
+    public void createAdministratorUser(@Valid @RequestBody @ApiParam(value = "admin information") final
+                                        UserDTO userDTO) {
         log.debug("REST request to save administrator : {}", userDTO);
         userDTO.setAdministrator(true);
-        this.userService.createUser(userDTO);
+        this.userService.createUserAccount(userDTO);
     }
 
     /**
@@ -82,8 +79,8 @@ public class UserController {
      */
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
-    public ResponseEntity<Page<UserDTO>> getAllUsers(Pageable pageable) {
-        Page<UserDTO> page = this.userService.getAllManagedUsers(pageable);
+    public ResponseEntity<Page<UserDTO>> getAllUsers(final Pageable pageable) {
+        final Page<UserDTO> page = this.userService.getAllManagedUsers(pageable);
         return ResponseEntity.ok(page);
     }
 
@@ -95,7 +92,7 @@ public class UserController {
      */
     @DeleteMapping("/users/{username}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
+    public ResponseEntity<Void> deleteUser(@PathVariable final String username) {
         log.debug("REST request to delete User: {}", username);
         this.userService.deleteUser(username);
         return ResponseEntity.noContent().headers(RestRequestUtils.createAlert(
@@ -113,22 +110,10 @@ public class UserController {
     @GetMapping("/activate")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Activate user account by token", notes = "token must be valid and not expired")
-    public void activateUserAccount(@RequestParam String key) {
+    public void activateUserAccount(@RequestParam final String key) {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("Activation key is invalid or broken!");
         }
         this.userService.activateRegistration(key);
     }
-
-    /**
-     * check password length
-     *
-     * @param password user password
-     * @return True when password length is accepted
-     */
-//    private boolean checkPasswordLength(String password) {
-//        return isEmpty(password) ||
-//                password.length() < Constants.PASSWORD_MIN_LENGTH ||
-//                password.length() > Constants.PASSWORD_MAX_LENGTH;
-//    }
 }

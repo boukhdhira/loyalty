@@ -3,13 +3,9 @@ package com.network.shopping.domain;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Set;
 
-//TODO: change user by client and make email adresse as mandatory to activate account aand rattache account to client
 @Entity
 @Table(name = "t_user")
 @Data
@@ -21,25 +17,18 @@ public class User implements Serializable {
     @Column(columnDefinition = "serial", name = "id")
     private Long id;
 
-    @NotNull
     @Column(nullable = false, unique = true)
     private String username;
 
-    @NotNull
-    @Size(min = 60, max = 60)
     @Column(name = "password_hash", length = 60, nullable = false)
     private String password;
 
-    @NotNull
     @Column(nullable = false)
     private String firstName;
 
-    @NotNull
     @Column(nullable = false)
     private String lastName;
 
-    @Email
-    @Size(min = 5, max = 254)
     @Column(length = 254, unique = true, nullable = false)
     private String email;
 

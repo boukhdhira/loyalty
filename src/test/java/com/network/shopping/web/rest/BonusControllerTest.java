@@ -41,18 +41,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class BonusControllerTest {
 
-    public static final String DEFAULT_FIRST_ACCOUNT_NUMBER = "123456789";
-    public static final String DEFAULT_CLIENT_ID = "user";
-    public static final String DEFAULT_FIRST_ACCOUNT_NAME = randomAlphabetic(10);
-    public static final String DEFAULT_CREDIT_CARD = "2222222222222";
-    public static final String DEFAULT_MERCHANT_NUMBER = "1022000001";
-    public static final String PURCHASE_CREDIT_CARD_NUMBER = "4111 1111 1111 1111";
-    public static final String PURCHASE_DATE = "2008-10-03";
-    public static final BigDecimal PURCHASE_AMOUNT = BigDecimal.valueOf(100);
-    public static final BigDecimal BENEFITS_PERCENTAGE = BigDecimal.valueOf(0.02);
-    // Some fixed date to make your tests
+    private static final String DEFAULT_FIRST_ACCOUNT_NUMBER = "123456789";
+    private static final String DEFAULT_CLIENT_ID = "user";
+    private static final String DEFAULT_FIRST_ACCOUNT_NAME = randomAlphabetic(10);
+    private static final String DEFAULT_CREDIT_CARD = "2222222222222";
+    private static final String DEFAULT_MERCHANT_NUMBER = "1022000001";
+    private static final String PURCHASE_CREDIT_CARD_NUMBER = "4111 1111 1111 1111";
+    private static final String PURCHASE_DATE = "2008-10-03";
+    private static final BigDecimal PURCHASE_AMOUNT = BigDecimal.valueOf(100);
+    private static final BigDecimal BENEFITS_PERCENTAGE = BigDecimal.valueOf(0.02);
+    // Some fixed today date to make tests
     private final static LocalDate LOCAL_DATE = LocalDate.of(2008, 11, 13);
-    ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+    private final ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
 
     @MockBean
     private StoreRepository storeRepository;

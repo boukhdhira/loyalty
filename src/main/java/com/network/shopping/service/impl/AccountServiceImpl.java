@@ -262,4 +262,11 @@ public class AccountServiceImpl implements AccountService {
         // to maintain entity version
         this.accountRepository.save(accountEntity);
     }
+
+    @Override
+    public void updateBeneficiaryPercentage(final String accountId, final String beneficiaryName, final BeneficiaryDTO beneficiary, final String clientId) {
+        if (!beneficiary.getName().equals(beneficiaryName)) {
+            throw new IllegalArgumentException("unrecognized beneficiary " + beneficiaryName);
+        }
+    }
 }
