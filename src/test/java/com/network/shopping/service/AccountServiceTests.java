@@ -1,9 +1,9 @@
 package com.network.shopping.service;
 
 import com.network.shopping.common.Percentage;
+import com.network.shopping.dto.AccountDTO;
+import com.network.shopping.dto.BeneficiaryDTO;
 import com.network.shopping.repository.AccountRepository;
-import com.network.shopping.service.dto.AccountDTO;
-import com.network.shopping.service.dto.BeneficiaryDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,15 +37,15 @@ public class AccountServiceTests {
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void shouldAddNewBeneficiariesListAndComputePercentageForPareRegisteredBeneficiaries() throws Exception {
         // beneficiary1
-        BeneficiaryDTO beneficiary1 = new BeneficiaryDTO();
+        final BeneficiaryDTO beneficiary1 = new BeneficiaryDTO();
         beneficiary1.setName(randomAlphabetic(10));
         beneficiary1.setPercentage(TWENTY_PERCENTAGE);
 
         //beneficiary2
-        BeneficiaryDTO beneficiary2 = new BeneficiaryDTO();
+        final BeneficiaryDTO beneficiary2 = new BeneficiaryDTO();
         beneficiary2.setName(randomAlphabetic(20));
         beneficiary2.setPercentage(TWENTY_PERCENTAGE);
-        AccountDTO newAccountData = this.accountService.addBeneficiariesToAccount(DEFAULT_FIRST_ACCOUNT_NUMBER, asList(beneficiary1, beneficiary2), DEFAULT_CLIENT_ID);
+        final AccountDTO newAccountData = this.accountService.addBeneficiariesToAccount(DEFAULT_FIRST_ACCOUNT_NUMBER, asList(beneficiary1, beneficiary2), DEFAULT_CLIENT_ID);
 
         assertAll(
                 () -> assertNotNull(newAccountData),
@@ -61,10 +61,10 @@ public class AccountServiceTests {
     public void shouldAddNewBeneficiariesListWithPareRegisteredBeneficiaries() throws Exception {
         this.accountRepository.saveAndFlush(createEntity());
 
-        BeneficiaryDTO beneficiary = new BeneficiaryDTO();
+        final BeneficiaryDTO beneficiary = new BeneficiaryDTO();
         beneficiary.setName(randomAlphabetic(20));
         beneficiary.setPercentage(TWENTY_PERCENTAGE);
-        AccountDTO newAccountData = this.accountService.addBeneficiariesToAccount(DEFAULT_FIRST_ACCOUNT_NUMBER
+        final AccountDTO newAccountData = this.accountService.addBeneficiariesToAccount(DEFAULT_FIRST_ACCOUNT_NUMBER
                 , singletonList(beneficiary), DEFAULT_CLIENT_ID);
 
         assertAll(

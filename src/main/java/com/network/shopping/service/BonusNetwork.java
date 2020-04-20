@@ -1,7 +1,7 @@
 package com.network.shopping.service;
 
-import com.network.shopping.service.dto.BonusConfirmationDTO;
-import com.network.shopping.service.dto.ShoppingDTO;
+import com.network.shopping.dto.BonusConfirmationDTO;
+import com.network.shopping.dto.ShoppingDTO;
 
 public interface BonusNetwork {
     /**

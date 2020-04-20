@@ -1,11 +1,13 @@
-package com.network.shopping.service.dto;
+package com.network.shopping.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StoreDTO {
 
     @NotBlank(message = "Merchant number is mandatory")

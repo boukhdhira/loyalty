@@ -1,6 +1,8 @@
-package com.network.shopping.service.dto;
+package com.network.shopping.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.hibernate.validator.constraints.CreditCardNumber;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -11,6 +13,8 @@ import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 
 @Data
+@Accessors(chain = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ShoppingDTO {
     public static final String MIN_AMOUNT = "0.0";
     @NotNull(message = "Shopping amount is mandatory")

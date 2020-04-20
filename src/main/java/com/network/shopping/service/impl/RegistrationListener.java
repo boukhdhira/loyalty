@@ -1,11 +1,11 @@
 package com.network.shopping.service.impl;
 
-import com.network.shopping.domain.ConfirmationToken;
-import com.network.shopping.domain.User;
+import com.network.shopping.dto.AccountDTO;
+import com.network.shopping.dto.MailRequest;
+import com.network.shopping.model.ConfirmationToken;
+import com.network.shopping.model.User;
 import com.network.shopping.repository.ConfirmationTokenRepository;
 import com.network.shopping.service.AccountService;
-import com.network.shopping.service.dto.AccountDTO;
-import com.network.shopping.service.dto.MailRequest;
 import com.network.shopping.service.event.OnRegistrationCompleteEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

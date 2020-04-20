@@ -1,14 +1,14 @@
 package com.network.shopping.service.impl;
 
 import com.network.shopping.common.Percentage;
-import com.network.shopping.domain.Account;
-import com.network.shopping.domain.Beneficiary;
-import com.network.shopping.domain.CreditCard;
+import com.network.shopping.dto.AccountDTO;
+import com.network.shopping.dto.BeneficiaryDTO;
 import com.network.shopping.exception.ResourceNotFoundException;
+import com.network.shopping.model.Account;
+import com.network.shopping.model.Beneficiary;
+import com.network.shopping.model.CreditCard;
 import com.network.shopping.repository.AccountRepository;
 import com.network.shopping.service.AccountService;
-import com.network.shopping.service.dto.AccountDTO;
-import com.network.shopping.service.dto.BeneficiaryDTO;
 import com.network.shopping.service.mapper.AccountMapper;
 import com.network.shopping.service.mapper.BeneficiaryMapper;
 import lombok.extern.slf4j.Slf4j;

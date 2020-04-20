@@ -1,8 +1,8 @@
 package com.network.shopping.service.mapper;
 
 import com.network.shopping.common.Percentage;
-import com.network.shopping.domain.Store;
-import com.network.shopping.service.dto.StoreDTO;
+import com.network.shopping.dto.StoreDTO;
+import com.network.shopping.model.Store;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

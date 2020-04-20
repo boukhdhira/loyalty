@@ -1,7 +1,7 @@
 package com.network.shopping.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.network.shopping.domain.User;
+import com.network.shopping.model.User;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -1,12 +1,15 @@
 package com.network.shopping.web.rest;
 
-import com.network.shopping.domain.*;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
+import com.network.shopping.dto.ShoppingDTO;
+import com.network.shopping.model.*;
 import com.network.shopping.repository.AccountRepository;
 import com.network.shopping.repository.BonusRepository;
 import com.network.shopping.repository.StoreRepository;
 import com.network.shopping.repository.UserRepository;
-import com.network.shopping.service.dto.ShoppingDTO;
 import com.network.shopping.service.event.OnBonusComputedEvent;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,6 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class BonusControllerTest {
 
+    public static final String DEFAULT_USER_EMAIL = "ldljepsjduerzd@dkpzmaoeac.kdokdk";
     private static final String DEFAULT_FIRST_ACCOUNT_NUMBER = "123456789";
     private static final String DEFAULT_CLIENT_ID = "user";
     private static final String DEFAULT_FIRST_ACCOUNT_NAME = randomAlphabetic(10);
@@ -53,7 +57,11 @@ public class BonusControllerTest {
     // Some fixed today date to make tests
     private final static LocalDate LOCAL_DATE = LocalDate.of(2008, 11, 13);
     private final ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
-
+    /**
+     * issues link https://github.com/spring-projects/spring-framework/issues/18907
+     */
+    @MockBean
+    private ApplicationEventPublisher eventPublisher;
     @MockBean
     private StoreRepository storeRepository;
     @MockBean
@@ -66,7 +74,7 @@ public class BonusControllerTest {
     private WebApplicationContext context;
     @Autowired
     private BonusRepository bonusRepository;
-
+    private GreenMail smtpServer;
     private MockMvc restMockMvc;
 
     private Account account;
@@ -78,6 +86,9 @@ public class BonusControllerTest {
                 .webAppContextSetup(this.context)
                 .apply(springSecurity())
                 .build();
+
+        this.smtpServer = new GreenMail(new ServerSetup(2525, null, "smtp"));
+        this.smtpServer.start();
 
         final Clock fixedClock = Clock.fixed(LOCAL_DATE.atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
         when(this.clock.instant()).thenReturn(fixedClock.instant());
@@ -97,13 +108,13 @@ public class BonusControllerTest {
         final CreditCard card = new CreditCard();
         card.setNumber(DEFAULT_CREDIT_CARD);
 
-        this.account = new Account();
-        this.account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
-        this.account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
-        this.account.setClientId(DEFAULT_CLIENT_ID);
-        this.account.setVersion(0);
-        this.account.setBeneficiaries(new HashSet<>(Arrays.asList(beneficiary1, beneficiary2)));
-        this.account.setCreditCards(new HashSet<>(Collections.singletonList(card)));
+        this.account = new Account()
+                .setName(DEFAULT_FIRST_ACCOUNT_NAME)
+                .setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER)
+                .setClientId(DEFAULT_CLIENT_ID)
+                .setVersion(0)
+                .setBeneficiaries(new HashSet<>(Arrays.asList(beneficiary1, beneficiary2)))
+                .setCreditCards(new HashSet<>(Collections.singletonList(card)));
 
 
         this.store = new Store();
@@ -116,21 +127,19 @@ public class BonusControllerTest {
     @Transactional
     public void shouldSaveBonusOperationAndComputeContritionToEachBenedictoryAccordingToTheirPercentage() throws Exception {
         //when
-        final ShoppingDTO shopping = new ShoppingDTO();
-        shopping.setMerchantNumber(DEFAULT_MERCHANT_NUMBER);
-        shopping.setDate(PURCHASE_DATE);
-        shopping.setAmount(PURCHASE_AMOUNT);
-        shopping.setCreditCardNumber(PURCHASE_CREDIT_CARD_NUMBER);
+        final ShoppingDTO shopping = new ShoppingDTO()
+                .setMerchantNumber(DEFAULT_MERCHANT_NUMBER)
+                .setDate(PURCHASE_DATE)
+                .setAmount(PURCHASE_AMOUNT)
+                .setCreditCardNumber(PURCHASE_CREDIT_CARD_NUMBER);
 
         final User user = new User();
-        user.setEmail("IDIDIIDDI@DKDKDKKD.KDKDK");
+        user.setEmail(DEFAULT_USER_EMAIL);
 
         when(this.accountRepository.findByCreditCardsNumber(anyString())).thenReturn(Optional.of(this.account));
         when(this.accountRepository.findOneByNumber(anyString())).thenReturn(Optional.of(this.account));
         when(this.userRepository.findOneByUsername(anyString())).thenReturn(Optional.of(user));
-
-        final ApplicationEventPublisher eventPublisher = spy(ApplicationEventPublisher.class);
-        doNothing().when(eventPublisher).publishEvent(any(OnBonusComputedEvent.class));
+        doNothing().when(this.eventPublisher).publishEvent(any(OnBonusComputedEvent.class));
 
         final List<Bonus> initialBonusList = this.bonusRepository.findAll();
         assertTrue(initialBonusList.isEmpty());
@@ -163,5 +172,10 @@ public class BonusControllerTest {
         final Beneficiary secondBeneficiary = new ArrayList<>(savedAccount.getBeneficiaries()).get(1);
         assertEquals(0.8, firstBeneficiary.getSavings().doubleValue());
         assertEquals(1.2, secondBeneficiary.getSavings().doubleValue());
+    }
+
+    @AfterEach
+    public void after() {
+        this.smtpServer.stop();
     }
 }

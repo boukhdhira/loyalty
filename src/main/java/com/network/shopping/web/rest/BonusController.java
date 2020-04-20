@@ -1,8 +1,8 @@
 package com.network.shopping.web.rest;
 
+import com.network.shopping.dto.BonusConfirmationDTO;
+import com.network.shopping.dto.ShoppingDTO;
 import com.network.shopping.service.BonusNetwork;
-import com.network.shopping.service.dto.BonusConfirmationDTO;
-import com.network.shopping.service.dto.ShoppingDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

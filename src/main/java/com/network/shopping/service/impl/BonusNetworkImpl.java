@@ -1,14 +1,14 @@
 package com.network.shopping.service.impl;
 
-import com.network.shopping.domain.Account;
-import com.network.shopping.domain.Bonus;
-import com.network.shopping.domain.Store;
+import com.network.shopping.dto.BonusConfirmationDTO;
+import com.network.shopping.dto.ShoppingDTO;
+import com.network.shopping.model.Account;
+import com.network.shopping.model.Bonus;
+import com.network.shopping.model.Store;
 import com.network.shopping.repository.AccountRepository;
 import com.network.shopping.repository.BonusRepository;
 import com.network.shopping.repository.StoreRepository;
 import com.network.shopping.service.BonusNetwork;
-import com.network.shopping.service.dto.BonusConfirmationDTO;
-import com.network.shopping.service.dto.ShoppingDTO;
 import com.network.shopping.service.event.OnBonusComputedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;

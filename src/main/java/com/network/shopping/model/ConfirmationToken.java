@@ -1,4 +1,4 @@
-package com.network.shopping.domain;
+package com.network.shopping.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,7 +30,7 @@ public class ConfirmationToken implements Serializable {
     @Column(nullable = false, unique = true)
     private String token;
 
-    public ConfirmationToken(String token, User user) {
+    public ConfirmationToken(final String token, final User user) {
         this.token = token;
         this.user = user;
     }

@@ -1,7 +1,7 @@
 package com.network.shopping.service.impl;
 
 import com.network.shopping.common.property.MailProperties;
-import com.network.shopping.service.dto.MailRequest;
+import com.network.shopping.dto.MailRequest;
 import com.network.shopping.service.utils.MailContentBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

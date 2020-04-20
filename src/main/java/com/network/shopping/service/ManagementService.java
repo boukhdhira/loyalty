@@ -1,6 +1,6 @@
 package com.network.shopping.service;
 
-import com.network.shopping.service.dto.StoreDTO;
+import com.network.shopping.dto.StoreDTO;
 
 public interface ManagementService {
 

@@ -1,9 +1,9 @@
 package com.network.shopping.web.rest;
 
-import com.network.shopping.domain.Account;
+import com.network.shopping.dto.AccountDTO;
+import com.network.shopping.dto.BeneficiaryDTO;
+import com.network.shopping.model.Account;
 import com.network.shopping.repository.AccountRepository;
-import com.network.shopping.service.dto.AccountDTO;
-import com.network.shopping.service.dto.BeneficiaryDTO;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -60,12 +60,11 @@ public class AccountControllerTest {
     private AccountRepository repository;
 
     public static Account createEntity() {
-        final Account defaultAccount = new Account();
-        defaultAccount.setName(DEFAULT_FIRST_ACCOUNT_NAME);
-        defaultAccount.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
-        defaultAccount.setClientId(DEFAULT_CLIENT_ID);
-        defaultAccount.setVersion(0);
-        return defaultAccount;
+        return new Account()
+                .setName(DEFAULT_FIRST_ACCOUNT_NAME)
+                .setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER)
+                .setClientId(DEFAULT_CLIENT_ID)
+                .setVersion(0);
     }
 
     @BeforeEach
@@ -84,9 +83,9 @@ public class AccountControllerTest {
     @Transactional
     public void shouldUpdateExistingAccount() throws Exception {
         this.repository.save(createEntity());
-        final AccountDTO account = new AccountDTO();
-        account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
-        account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
+        final AccountDTO account = new AccountDTO()
+                .setName(DEFAULT_FIRST_ACCOUNT_NAME)
+                .setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
         final BeneficiaryDTO beneficiary = new BeneficiaryDTO();
         beneficiary.setPercentage("80%");
         beneficiary.setName("Alia");
@@ -149,10 +148,10 @@ public class AccountControllerTest {
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(value = DEFAULT_USER)
-    void shouldReturnConflictRequestWhenAccountNumberAlreadyUsed() throws Exception {
-        final AccountDTO account = new AccountDTO();
-        account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
-        account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
+    public void shouldReturnConflictRequestWhenAccountNumberAlreadyUsed() throws Exception {
+        final AccountDTO account = new AccountDTO()
+                .setName(DEFAULT_FIRST_ACCOUNT_NAME)
+                .setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
 
         this.restMockMvc.perform(MockMvcRequestBuilders.post("/api/v1/accounts")
                 .content(asJsonString(account))
@@ -167,11 +166,11 @@ public class AccountControllerTest {
     @Sql("/static/account-data.sql")
     @Sql(value = "/static/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     @WithMockUser(value = DEFAULT_USER)
-    void shouldReturnConflictRequestWhenCreditCardNumberIsAlreadyUsedForOtherAccount() throws Exception {
-        final AccountDTO account = new AccountDTO();
-        account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
-        account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
-        account.setCreditCards(singleton(DEFAULT_CREDIT_CARD_NUMBER));
+    public void shouldReturnConflictRequestWhenCreditCardNumberIsAlreadyUsedForOtherAccount() throws Exception {
+        final AccountDTO account = new AccountDTO()
+                .setName(DEFAULT_FIRST_ACCOUNT_NAME)
+                .setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER)
+                .setCreditCards(singleton(DEFAULT_CREDIT_CARD_NUMBER));
 
         this.restMockMvc.perform(MockMvcRequestBuilders.put("/api/v1/accounts")
                 .content(asJsonString(account))
@@ -198,9 +197,8 @@ public class AccountControllerTest {
     @WithMockUser(value = DEFAULT_USER)
     @Test
     void shouldReturnBadRequestWhenInputDataHasInvalidFormat() throws Exception {
-        final AccountDTO account = new AccountDTO();
-        account.setName("");
-        account.setNumber(OTHER_FIRST_ACCOUNT_NUMBER);
+        final AccountDTO account = new AccountDTO()
+                .setName("").setNumber(OTHER_FIRST_ACCOUNT_NUMBER);
 
         this.restMockMvc.perform(MockMvcRequestBuilders.put("/api/v1/accounts")
                 .content(asJsonString(account))
@@ -241,10 +239,10 @@ public class AccountControllerTest {
         beneficiary2.setPercentage("40%");
         beneficiary2.setName(randomAlphabetic(20));
 
-        final AccountDTO account = new AccountDTO();
-        account.setName(DEFAULT_FIRST_ACCOUNT_NAME);
-        account.setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
-        account.setBeneficiaries(newHashSet(beneficiary1, beneficiary2));
+        final AccountDTO account = new AccountDTO()
+                .setName(DEFAULT_FIRST_ACCOUNT_NAME)
+                .setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER)
+                .setBeneficiaries(newHashSet(beneficiary1, beneficiary2));
 
         this.restMockMvc.perform(MockMvcRequestBuilders.put("/api/v1/accounts")
                 .content(asJsonString(account))

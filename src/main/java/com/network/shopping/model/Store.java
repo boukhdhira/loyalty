@@ -1,4 +1,4 @@
-package com.network.shopping.domain;
+package com.network.shopping.model;
 
 import lombok.Data;
 

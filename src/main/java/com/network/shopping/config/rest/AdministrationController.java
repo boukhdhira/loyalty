@@ -1,7 +1,7 @@
-package com.network.shopping.web.rest;
+package com.network.shopping.config.rest;
 
+import com.network.shopping.dto.StoreDTO;
 import com.network.shopping.service.ManagementService;
-import com.network.shopping.service.dto.StoreDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

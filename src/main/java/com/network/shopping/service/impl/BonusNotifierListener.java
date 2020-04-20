@@ -1,10 +1,10 @@
 package com.network.shopping.service.impl;
 
-import com.network.shopping.domain.Bonus;
-import com.network.shopping.domain.User;
+import com.network.shopping.dto.MailRequest;
+import com.network.shopping.model.Bonus;
+import com.network.shopping.model.User;
 import com.network.shopping.repository.AccountRepository;
 import com.network.shopping.repository.UserRepository;
-import com.network.shopping.service.dto.MailRequest;
 import com.network.shopping.service.event.OnBonusComputedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

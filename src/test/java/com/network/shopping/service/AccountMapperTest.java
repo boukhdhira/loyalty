@@ -1,10 +1,10 @@
 package com.network.shopping.service;
 
-import com.network.shopping.domain.Account;
-import com.network.shopping.domain.Beneficiary;
-import com.network.shopping.domain.CreditCard;
-import com.network.shopping.service.dto.AccountDTO;
-import com.network.shopping.service.dto.BeneficiaryDTO;
+import com.network.shopping.dto.AccountDTO;
+import com.network.shopping.dto.BeneficiaryDTO;
+import com.network.shopping.model.Account;
+import com.network.shopping.model.Beneficiary;
+import com.network.shopping.model.CreditCard;
 import com.network.shopping.service.mapper.AccountMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,15 +33,15 @@ public class AccountMapperTest {
 
     @BeforeEach
     public void init() {
-        BeneficiaryDTO beneficiary = new BeneficiaryDTO();
+        final BeneficiaryDTO beneficiary = new BeneficiaryDTO();
         beneficiary.setName(DEFAULT_BENEFICIARY_NAME);
         beneficiary.setPercentage("100%");
 
-        Beneficiary beneficiary2 = new Beneficiary();
+        final Beneficiary beneficiary2 = new Beneficiary();
         beneficiary2.setName(DEFAULT_BENEFICIARY_NAME);
         beneficiary2.setAllocationPercentage(BigDecimal.ONE);
 
-        CreditCard creditCard = new CreditCard();
+        final CreditCard creditCard = new CreditCard();
         creditCard.setNumber("15555552224633");
 
         this.accountDTO = new AccountDTO();
@@ -59,8 +59,8 @@ public class AccountMapperTest {
 
     @Test
     public void mapAccountsEntityToAccountDtosAndTakeNullAndEmptyAccounts() throws Exception {
-        List<Account> accountsEntities = asList(null, this.account, new Account());
-        List<AccountDTO> accounts = this.mapper.toDtos(accountsEntities);
+        final List<Account> accountsEntities = asList(null, this.account, new Account());
+        final List<AccountDTO> accounts = this.mapper.toDtos(accountsEntities);
 
         assertThat(accounts).isNotEmpty();
         assertThat(accounts).size().isEqualTo(3);

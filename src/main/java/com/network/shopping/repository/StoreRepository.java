@@ -1,6 +1,6 @@
 package com.network.shopping.repository;
 
-import com.network.shopping.domain.Store;
+import com.network.shopping.model.Store;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

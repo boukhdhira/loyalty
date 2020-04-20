@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig
-public class BootApplicationTests {
+public class ShoppingRewardApplicationTests {
 
     @Test
     public void contextLoads() {

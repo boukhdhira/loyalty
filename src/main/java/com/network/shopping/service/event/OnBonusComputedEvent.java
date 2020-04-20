@@ -1,6 +1,6 @@
 package com.network.shopping.service.event;
 
-import com.network.shopping.domain.Bonus;
+import com.network.shopping.model.Bonus;
 import org.springframework.context.ApplicationEvent;
 
 public class OnBonusComputedEvent extends ApplicationEvent {

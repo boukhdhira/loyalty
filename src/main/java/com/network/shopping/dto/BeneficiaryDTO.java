@@ -1,4 +1,4 @@
-package com.network.shopping.service.dto;
+package com.network.shopping.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;

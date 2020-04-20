@@ -1,8 +1,8 @@
 package com.network.shopping.service.impl;
 
+import com.network.shopping.dto.StoreDTO;
 import com.network.shopping.repository.StoreRepository;
 import com.network.shopping.service.ManagementService;
-import com.network.shopping.service.dto.StoreDTO;
 import com.network.shopping.service.mapper.StoreMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,8 @@
 package com.network.shopping.web.rest;
 
+import com.network.shopping.dto.AccountDTO;
+import com.network.shopping.dto.BeneficiaryDTO;
 import com.network.shopping.service.AccountService;
-import com.network.shopping.service.dto.AccountDTO;
-import com.network.shopping.service.dto.BeneficiaryDTO;
 import com.network.shopping.service.utils.RestRequestUtils;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,8 @@ public class AccountController {
     }
 
     @GetMapping
-    @ApiOperation(value = "retrieve list of all registered accounts", response = Page.class)
+    @ApiOperation(value = "retrieve list of all registered accounts", response = Page.class
+            , authorizations = {@Authorization(value = "apiKey")})
     @PreAuthorize("hasRole('ADMIN')")
     public @ResponseBody
     Page<AccountDTO> accountSummary(final Pageable pageable) {
@@ -51,7 +52,7 @@ public class AccountController {
     }
 
     @GetMapping(value = "/{accountId}")
-    @ApiOperation(value = "Getting account details by id")
+    @ApiOperation(value = "Getting account details by id", authorizations = {@Authorization(value = "apiKey")})
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully retrieved account"),
             @ApiResponse(code = 404, message = "The account you were trying to reach is not found or id invalid")
@@ -61,7 +62,7 @@ public class AccountController {
         return ResponseEntity.ok(this.accountService.getUserAccountByNumber(number, principal.getName()));
     }
 
-    @ApiOperation(value = "update account information")
+    @ApiOperation(value = "update account information", authorizations = {@Authorization(value = "apiKey")})
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
     @ApiResponses(value = {
@@ -87,7 +88,7 @@ public class AccountController {
 //        return entityWithLocation(account.getNumber());
 //    }
 
-    @ApiOperation(value = "Attache a new beneficiary to an existing account")
+    @ApiOperation(value = "Attache a new beneficiary to an existing account", authorizations = {@Authorization(value = "apiKey")})
     @PostMapping("/{accountId}/beneficiary")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses(value = {
@@ -113,7 +114,7 @@ public class AccountController {
      */
     @PostMapping("/{accountId}/card")
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(value = "Add credit card number to existing account")
+    @ApiOperation(value = "Add credit card number to existing account", authorizations = {@Authorization(value = "apiKey")})
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successfully attache a new credit card number for given account"),
             @ApiResponse(code = 409, message = "Credit card number already used for other account"),
@@ -134,7 +135,7 @@ public class AccountController {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/{accountId}")
-    @ApiOperation(value = "Delete account by their identifier")
+    @ApiOperation(value = "Delete account by their identifier", authorizations = {@Authorization(value = "apiKey")})
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "Successfully deleting account"),
             @ApiResponse(code = 402, message = "Invalid account id")})
@@ -153,7 +154,8 @@ public class AccountController {
      */
     @DeleteMapping(value = "/{accountId}/beneficiaries/{beneficiaryName}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @ApiOperation(value = "Delete beneficiary's account by their name identifier")
+    @ApiOperation(value = "Delete beneficiary's account by their name identifier"
+            , authorizations = {@Authorization(value = "apiKey")})
     @ApiResponses(value = {
             @ApiResponse(code = 204, message = "Successfully deleting beneficiary for given account"),
             @ApiResponse(code = 402, message = "Invalid account id")})
@@ -164,6 +166,7 @@ public class AccountController {
     }
 
     @PatchMapping(value = "/{accountId}/beneficiaries/{beneficiaryName}")
+    @ApiOperation(value = "modified beneficiary percentage", authorizations = {@Authorization(value = "apiKey")})
     public ResponseEntity modifyBeneficiaryPercentage(@ApiParam(value = "account id ", required = true) @PathVariable final String accountId
             , @ApiParam(value = "beneficiary registered name", required = true) @PathVariable final String beneficiaryName,
                                                       @RequestBody @NotNull @Valid final BeneficiaryDTO beneficiary,

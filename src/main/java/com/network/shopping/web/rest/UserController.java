@@ -1,7 +1,7 @@
 package com.network.shopping.web.rest;
 
+import com.network.shopping.dto.UserDTO;
 import com.network.shopping.service.UserService;
-import com.network.shopping.service.dto.UserDTO;
 import com.network.shopping.service.utils.RestRequestUtils;
 import io.swagger.annotations.*;
 import lombok.NonNull;

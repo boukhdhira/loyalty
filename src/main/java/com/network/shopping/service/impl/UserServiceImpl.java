@@ -1,11 +1,11 @@
 package com.network.shopping.service.impl;
 
-import com.network.shopping.domain.ConfirmationToken;
-import com.network.shopping.domain.User;
+import com.network.shopping.dto.UserDTO;
+import com.network.shopping.model.ConfirmationToken;
+import com.network.shopping.model.User;
 import com.network.shopping.repository.ConfirmationTokenRepository;
 import com.network.shopping.repository.UserRepository;
 import com.network.shopping.service.UserService;
-import com.network.shopping.service.dto.UserDTO;
 import com.network.shopping.service.event.OnRegistrationCompleteEvent;
 import com.network.shopping.service.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;

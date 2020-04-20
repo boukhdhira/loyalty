@@ -8,7 +8,7 @@
         <version>2.2.5.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.softeam</groupId>
+    <groupId>com.training.springboot</groupId>
     <artifactId>loyalty</artifactId>
     <version>0.0.1</version>
     <name>loyalty program</name>
@@ -24,7 +24,6 @@
         <jaxb-runtime.version>2.3.2</jaxb-runtime.version>
         <jaxb.version>2.1</jaxb.version>
         <jwt.version>0.9.1</jwt.version>
-        <zalando-problem.version>0.25.2</zalando-problem.version>
         <ice-green.version>1.5.0</ice-green.version>
     </properties>
 
@@ -41,6 +40,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        <!-- auto restart server on code/config updates -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>

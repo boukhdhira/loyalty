@@ -3,7 +3,7 @@ package com.network.shopping.service;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.network.shopping.common.property.MailProperties;
 import com.network.shopping.config.SmtpServerRule;
-import com.network.shopping.service.dto.MailRequest;
+import com.network.shopping.dto.MailRequest;
 import com.network.shopping.service.impl.MailClient;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,20 +37,20 @@ public class MailClientTest {
     @Test
     public void shouldSendActivationMail() throws Exception {
         //when
-        MailRequest request = new MailRequest();
+        final MailRequest request = new MailRequest();
         request.setRecipient(RECIPIENT_ADDRESS);
-        String key = randomAlphabetic(10);
+        final String key = randomAlphabetic(10);
         request.setProps(Collections.singletonMap(ACTIVATION_KEY, key));
         this.mailClient.prepareAndSendActivation(request);
         //then
         this.assertReceivedMessageContains(key);
     }
 
-    private void assertReceivedMessageContains(String expected) throws IOException, MessagingException {
-        MimeMessage[] receivedMessages = this.smtpServerRule.getMessages();
+    private void assertReceivedMessageContains(final String expected) throws IOException, MessagingException {
+        final MimeMessage[] receivedMessages = this.smtpServerRule.getMessages();
         assertEquals(1, receivedMessages.length);
-        MimeMessage currentMimeMessage = receivedMessages[0];
-        String content = GreenMailUtil.getBody(currentMimeMessage).replaceAll("=\r?\n", "");
+        final MimeMessage currentMimeMessage = receivedMessages[0];
+        final String content = GreenMailUtil.getBody(currentMimeMessage).replaceAll("=\r?\n", "");
         assertEquals(this.properties.getActivationSubject(), currentMimeMessage.getSubject());
         assertEquals(1, currentMimeMessage.getAllRecipients().length);
         assertEquals(RECIPIENT_ADDRESS, currentMimeMessage.getAllRecipients()[0].toString());

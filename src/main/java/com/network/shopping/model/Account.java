@@ -1,6 +1,7 @@
-package com.network.shopping.domain;
+package com.network.shopping.model;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,6 +18,7 @@ import java.util.Set;
  * An entity. An aggregate.
  */
 @Data
+@Accessors(chain = true) //The chain option gives us setters that return this
 @Entity
 @Table(name = "t_account", schema = "public")
 // use of EqualsAndHashCode and JsonIgnoreProperties to handle circular References/Dependencies

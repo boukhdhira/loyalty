@@ -1,6 +1,6 @@
 package com.network.shopping.service.event;
 
-import com.network.shopping.domain.User;
+import com.network.shopping.model.User;
 import org.springframework.context.ApplicationEvent;
 
 /**
