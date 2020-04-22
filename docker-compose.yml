@@ -1,0 +1,31 @@
+# docker-compose makes it easy to startup multiple containers at the same time and automatically connect them together with some form of networking
+version: '3' # version of docker-compose
+services:
+  database:
+    image: "postgres" # use latest official postgres version
+    container_name: "postgres"
+    # configure postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: loyalty_db
+    ports:
+      - "2345:5432"
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/postgresql/data #  These volumes allow the data to persist even if we destroy the containers
+  web:
+    build: .
+    links:
+      - database
+    container_name: loyalty-Service
+    restart: always
+    ports:
+      - "8088:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/loyalty_db
+      - APP_BASE_URL=localhost:8088/api/v1
+    depends_on:
+      - database
+volumes:
+  db-data:

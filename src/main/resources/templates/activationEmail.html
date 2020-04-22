@@ -13,7 +13,7 @@
 </p>
 <p>
     <a th:href="${url}" th:text="${url}"
-       th:with="url=(@{|${activationUrl}/v1/activate?key=${activationKey}|})">Activation link</a>
+       th:with="url=(@{|${activationUrl}/activate?key=${activationKey}|})">Activation link</a>
 </p>
 <p style="margin-top: 50px;">
     <em>*You must enter this code within <span th:text="${tokenExpiration}"></span> minutes. After this time, you will

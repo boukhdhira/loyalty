@@ -40,12 +40,12 @@ create table if not exists t_bonus(
     shopping_date date not null
 );
 
-create table if not exists t_user(
+create table if not exists t_user (
     id serial primary key,
     username varchar(50) not null unique,
-    firstName varchar(50) not null,
-    lastName varchar(50) not null,
-    lastName varchar(254) not null unique,
+    first_name varchar(50) not null,
+    last_name varchar(50) not null,
+    email varchar(254) not null unique,
     account_expired boolean ,
     account_locked boolean ,
     credentials_expired boolean ,
