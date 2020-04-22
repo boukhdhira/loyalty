@@ -1,7 +1,7 @@
 package com.network.shopping.service.mapper;
 
-import com.network.shopping.domain.User;
-import com.network.shopping.service.dto.UserDTO;
+import com.network.shopping.dto.UserDTO;
+import com.network.shopping.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

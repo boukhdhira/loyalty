@@ -1,4 +1,4 @@
-package com.network.shopping.service.dto;
+package com.network.shopping.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModel;
@@ -19,7 +19,7 @@ public class BeneficiaryDTO {
     private String name;
     @ApiModelProperty(notes = "Beneficiary allocation percentage")
     @NotBlank(message = "allocation percentage is mandatory")
-    @Pattern(regexp = "^[0-9]{3}%$", message = "Invalid allocation percentage")
+    @Pattern(regexp = "^[0-9]{1,3}%$", message = "Invalid allocation percentage")
     private String percentage;
     @ApiModelProperty(notes = "Beneficiary savings amount")
     private BigDecimal savings = BigDecimal.ZERO;

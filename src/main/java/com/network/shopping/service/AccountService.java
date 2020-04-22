@@ -1,7 +1,7 @@
 package com.network.shopping.service;
 
-import com.network.shopping.service.dto.AccountDTO;
-import com.network.shopping.service.dto.BeneficiaryDTO;
+import com.network.shopping.dto.AccountDTO;
+import com.network.shopping.dto.BeneficiaryDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -27,5 +27,7 @@ public interface AccountService {
     String getAccountIdByClient(String clientId);
 
     void updateUserAccount(AccountDTO account, String userId);
+
+    void updateBeneficiaryPercentage(String accountId, String beneficiaryName, BeneficiaryDTO beneficiary, String clientId);
 }
 

@@ -1,4 +1,4 @@
-package com.network.shopping.service.dto;
+package com.network.shopping.dto;
 
 import lombok.Data;
 

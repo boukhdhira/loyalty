@@ -1,12 +1,9 @@
 package com.network.shopping.web.rest;
 
-import com.network.shopping.config.Constants;
+import com.network.shopping.dto.UserDTO;
 import com.network.shopping.service.UserService;
-import com.network.shopping.service.dto.UserDTO;
 import com.network.shopping.service.utils.RestRequestUtils;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.*;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +20,6 @@ import javax.validation.Valid;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-/**
- * TODO: rattach user to an account
- */
 @RestController
 @RequestMapping("/api/v1")
 @Slf4j
@@ -38,7 +32,7 @@ public class UserController {
     private String applicationName;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(final UserService userService) {
         this.userService = userService;
     }
 
@@ -57,28 +51,24 @@ public class UserController {
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation("Register a new user account")
-    //@PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public void createUser(@Valid @RequestBody @NonNull @ApiParam(value = "user data information")
-                                   UserDTO userDTO) {
+    public void createUser(@Valid @RequestBody @NonNull @ApiParam(value = "user data information") final
+                           UserDTO userDTO) {
         log.debug("REST request to save User : {}", userDTO);
-        if (this.checkPasswordLength(userDTO.getPassword())) {
-            throw new IllegalArgumentException("Password don't match required size");
-        }
-        this.userService.createUser(userDTO);
+        this.userService.createUserAccount(userDTO);
     }
 
     @PostMapping("/users/admin")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation("Register a new administrator")
     @PreAuthorize("hasRole('ADMIN')")
-    public void createAdministratorUser(@Valid @RequestBody @ApiParam(value = "user data information")
-                                                UserDTO userDTO) {
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successfully added new administrator account"),
+            @ApiResponse(code = 400, message = "Validation failed for data")})
+    public void createAdministratorUser(@Valid @RequestBody @ApiParam(value = "admin information") final
+                                        UserDTO userDTO) {
         log.debug("REST request to save administrator : {}", userDTO);
-        if (this.checkPasswordLength(userDTO.getPassword())) {
-            throw new IllegalArgumentException("Password don't match required size");
-        }
         userDTO.setAdministrator(true);
-        this.userService.createUser(userDTO);
+        this.userService.createUserAccount(userDTO);
     }
 
     /**
@@ -89,8 +79,8 @@ public class UserController {
      */
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
-    public ResponseEntity<Page<UserDTO>> getAllUsers(Pageable pageable) {
-        Page<UserDTO> page = this.userService.getAllManagedUsers(pageable);
+    public ResponseEntity<Page<UserDTO>> getAllUsers(final Pageable pageable) {
+        final Page<UserDTO> page = this.userService.getAllManagedUsers(pageable);
         return ResponseEntity.ok(page);
     }
 
@@ -102,7 +92,7 @@ public class UserController {
      */
     @DeleteMapping("/users/{username}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
+    public ResponseEntity<Void> deleteUser(@PathVariable final String username) {
         log.debug("REST request to delete User: {}", username);
         this.userService.deleteUser(username);
         return ResponseEntity.noContent().headers(RestRequestUtils.createAlert(
@@ -110,19 +100,20 @@ public class UserController {
     }
 
     //TODO: on peut developpeur un CRON job qui regenere des activations key si l'utilsateur n'as pas encore validé son enregistrement
+
+    /**
+     * {@code GET /activate} : Confirm account mail & activate account.
+     *
+     * @param key the identifier of created account.
+     * @return void with status {@code 200 (ok)}.
+     */
     @GetMapping("/activate")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Activate user account by token", notes = "token must be valid and not expired")
-    public void activateUserAccount(@RequestParam String key) {
+    public void activateUserAccount(@RequestParam final String key) {
         if (isEmpty(key)) {
             throw new IllegalArgumentException("Activation key is invalid or broken!");
         }
         this.userService.activateRegistration(key);
-    }
-
-    private boolean checkPasswordLength(String password) {
-        return isEmpty(password) ||
-                password.length() < Constants.PASSWORD_MIN_LENGTH ||
-                password.length() > Constants.PASSWORD_MAX_LENGTH;
     }
 }

@@ -1,4 +1,4 @@
-package com.network.shopping.domain;
+package com.network.shopping.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
@@ -9,15 +9,14 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 @Entity
-@Table(name = "t_account_beneficiary")
+@Table(name = "t_account_credit_card")
 @Data
-@JsonIgnoreProperties("beneficiaries")
+@JsonIgnoreProperties("creditCards")
 @EqualsAndHashCode(exclude = "account")
-public class Beneficiary implements Serializable {
-    private static final long serialVersionUID = 4888973121112637258L;
+public class CreditCard implements Serializable {
+    private static final long serialVersionUID = 2879637614226311753L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "serial")
@@ -29,10 +28,6 @@ public class Beneficiary implements Serializable {
     private Account account;
 
     @NotNull
-    private String name;
-
-    @Column(precision = 3, scale = 2)
-    private BigDecimal allocationPercentage;
-
-    private BigDecimal savings;
+    @Column(name = "number", unique = true)
+    private String number;
 }

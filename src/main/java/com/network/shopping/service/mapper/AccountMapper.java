@@ -1,11 +1,11 @@
 package com.network.shopping.service.mapper;
 
 import com.network.shopping.common.Percentage;
-import com.network.shopping.domain.Account;
-import com.network.shopping.domain.Beneficiary;
-import com.network.shopping.domain.CreditCard;
-import com.network.shopping.service.dto.AccountDTO;
-import com.network.shopping.service.dto.BeneficiaryDTO;
+import com.network.shopping.dto.AccountDTO;
+import com.network.shopping.dto.BeneficiaryDTO;
+import com.network.shopping.model.Account;
+import com.network.shopping.model.Beneficiary;
+import com.network.shopping.model.CreditCard;
 import org.mapstruct.IterableMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -37,23 +37,23 @@ public abstract class AccountMapper {
     @Mapping(target = "allocationPercentage", source = "percentage", qualifiedByName = "toDecimal")
     protected abstract Beneficiary mapBeneficiaryDTOToBeneficiaryEntity(BeneficiaryDTO list);
 
-    protected String mapCreditCardToNumber(CreditCard card) {
+    protected String mapCreditCardToNumber(final CreditCard card) {
         return card.getNumber();
     }
 
-    protected CreditCard mapCreditCardNumberToCardEntity(String number) {
-        CreditCard card = new CreditCard();
+    protected CreditCard mapCreditCardNumberToCardEntity(final String number) {
+        final CreditCard card = new CreditCard();
         card.setNumber(number);
         return card;
     }
 
     @Named("toPercentage")
-    String toPercentage(BigDecimal decimal) {
+    String toPercentage(final BigDecimal decimal) {
         return new Percentage(decimal).toString();
     }
 
     @Named("toDecimal")
-    BigDecimal toDecimal(String percentage) {
+    BigDecimal toDecimal(final String percentage) {
         return Percentage.of(percentage).asBigDecimal();
     }
 }

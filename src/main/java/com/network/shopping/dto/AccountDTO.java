@@ -1,9 +1,10 @@
-package com.network.shopping.service.dto;
+package com.network.shopping.dto;
 
 import com.network.shopping.service.utils.NotEmptyFields;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -14,6 +15,7 @@ import java.util.Set;
 import static com.network.shopping.config.Constants.ACCOUNT_NUMBER_REGEX;
 
 @Data
+@Accessors(chain = true)
 @ApiModel(description = "All details about an account. ")
 public class AccountDTO {
     @ApiModelProperty(notes = "The account reattached list of credit card")
