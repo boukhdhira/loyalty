@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.training.springboot</groupId>
     <artifactId>loyalty</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <name>loyalty program</name>
     <description>Training spring boot project using spring 5</description>
 

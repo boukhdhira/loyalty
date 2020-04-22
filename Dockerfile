@@ -22,9 +22,9 @@ FROM openjdk:8-jre-alpine
 WORKDIR /loyalty-project
 
 # copy over the built artifact from the maven image
-COPY --from=maven target/loyalty-0.0.1.jar ./
+COPY --from=maven target/loyalty-0.0.2.jar ./
 
 # user 8088 port
 EXPOSE 8088
 # set the startup command to run the binary
-CMD ["java", "-jar", "./loyalty-0.0.1.jar"]
+CMD ["java", "-jar", "./loyalty-0.0.2.jar"]
