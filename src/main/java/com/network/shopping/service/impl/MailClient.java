@@ -12,7 +12,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -28,7 +28,7 @@ import static io.micrometer.core.instrument.util.StringUtils.isBlank;
 import static java.util.Objects.isNull;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-@Service
+@Component
 @Slf4j
 public class MailClient {
 

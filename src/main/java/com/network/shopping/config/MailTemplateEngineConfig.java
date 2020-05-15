@@ -16,21 +16,22 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 public class MailTemplateEngineConfig {
 
+    private static final String HTML = ".html";
     @Value("${spring.thymeleaf.prefix}")
     private String templatesPath;
 
     @Bean
     public SpringTemplateEngine springTemplateEngine() {
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+        final SpringTemplateEngine templateEngine = new SpringTemplateEngine();
         templateEngine.addTemplateResolver(this.htmlTemplateResolver());
         return templateEngine;
     }
 
     @Bean
     public SpringResourceTemplateResolver htmlTemplateResolver() {
-        SpringResourceTemplateResolver emailTemplateResolver = new SpringResourceTemplateResolver();
+        final SpringResourceTemplateResolver emailTemplateResolver = new SpringResourceTemplateResolver();
         emailTemplateResolver.setPrefix(this.templatesPath);
-        emailTemplateResolver.setSuffix(".html");
+        emailTemplateResolver.setSuffix(HTML);
         emailTemplateResolver.setTemplateMode(TemplateMode.HTML);
         emailTemplateResolver.setCharacterEncoding(StandardCharsets.UTF_8.name());
         return emailTemplateResolver;
