@@ -18,7 +18,7 @@ public class StoreDTO {
     private String name;
 
     @NotBlank
-    @Pattern(regexp = "^[0-9]{1,3}%$", message = "Invalid benefits percentage")
+    @Pattern(regexp = "^([0-9]{1,2}|100)%$", message = "Invalid benefits percentage")
     private String benefitsPercentage;
 
     @NotBlank(message = "benefits policy is mandatory")

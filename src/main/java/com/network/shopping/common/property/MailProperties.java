@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "spring.mail")
 @Getter
 @Setter
-public class MailProperties {
+public final class MailProperties {
     String sender;
     String activationSubject;
     String activationTemplate;
@@ -15,4 +15,7 @@ public class MailProperties {
     String resourcesPath;
     String bonusSubject;
     String bonusTemplate;
+
+    private MailProperties() {
+    }
 }

@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.training.springboot</groupId>
     <artifactId>loyalty</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <name>loyalty program</name>
     <description>Training spring boot project using spring 5</description>
 
@@ -88,8 +88,8 @@
             <artifactId>thymeleaf-spring5</artifactId>
         </dependency>
         <dependency>
-            <groupId>nz.net.ultraq.thymeleaf</groupId>
-            <artifactId>thymeleaf-layout-dialect</artifactId>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
         </dependency>
         <dependency>
             <groupId>com.icegreen</groupId>
@@ -184,6 +184,19 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <!-- cache management dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.cache</groupId>
+            <artifactId>cache-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
         </dependency>
     </dependencies>
 

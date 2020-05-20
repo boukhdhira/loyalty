@@ -3,6 +3,7 @@ package com.network.shopping.web.rest;
 import com.network.shopping.dto.AccountDTO;
 import com.network.shopping.dto.BeneficiaryDTO;
 import com.network.shopping.service.AccountService;
+import com.network.shopping.service.utils.CreditCards;
 import com.network.shopping.service.utils.RestRequestUtils;
 import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +69,7 @@ public class AccountController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successfully updated account"),
             @ApiResponse(code = 400, message = "Validation failed for account data")})
-    public void updateAccount(@RequestBody @NotNull @Valid final AccountDTO account, final Principal principal) {
+    public void updateAccount(@RequestBody @Valid final AccountDTO account, final Principal principal) {
         log.debug("Request to update account {} ", account);
         this.accountService.updateUserAccount(account, principal.getName());
     }
@@ -118,14 +119,16 @@ public class AccountController {
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Successfully attache a new credit card number for given account"),
             @ApiResponse(code = 409, message = "Credit card number already used for other account"),
-            @ApiResponse(code = 400, message = "Validation failed for beneficiary data or account id")})
+            @ApiResponse(code = 400, message = "Validation failed for card number or account id reattached to user")})
     public AccountDTO addCreditCardToAccount(@PathVariable @ApiParam(value = "Account identifier", required = true) final String accountId,
                                              @NotBlank(message = "credit card number is mandatory")
                                              @ApiParam(value = "Card unique number", required = true)
-                                             @RequestBody final String cardNumber,
+                                             @RequestBody
+                                             @CreditCards final String cardNumber,
                                              final Principal principal) {
         log.debug("Request to add a credit card number={} to account number {} ", cardNumber, accountId);
-        return this.accountService.addCreditCardToAccount(accountId, cardNumber, principal.getName());
+        return this.accountService.addCreditCardToAccount(accountId, cardNumber.replaceAll("\\s+", "")
+                , principal.getName());
     }
 
     /**

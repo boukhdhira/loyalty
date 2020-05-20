@@ -11,13 +11,14 @@
 <p style="color: #000000;">
     Your account has been created, please click on the URL below to activate it:
 </p>
-<p>
-    <a th:href="${url}" th:text="${url}"
-       th:with="url=(@{|${activationUrl}/activate?key=${activationKey}|})">Activation link</a>
-</p>
+<div>
+    <a href="@Url.Action(${url})" th:target="_blank" th:text="${url}"
+       th:with="url=(@{|${baseUrl}/activate?key=${key}|})"></a>
+</div>
 <p style="margin-top: 50px;">
-    <em>*You must enter this code within <span th:text="${tokenExpiration}"></span> minutes. After this time, you will
-        need to request a new activation
+    <em>*You must enter this code within <span th:text="${delay}"></span> <span
+            th:text="${unit} ?: 'minutes'"></span>.
+        After this time, you will need to request a new activation
         code.</em>
 </p>
 <p>

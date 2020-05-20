@@ -3,6 +3,8 @@ package com.network.shopping.web.rest;
 import com.network.shopping.dto.AccountDTO;
 import com.network.shopping.dto.BeneficiaryDTO;
 import com.network.shopping.model.Account;
+import com.network.shopping.model.Beneficiary;
+import com.network.shopping.model.CreditCard;
 import com.network.shopping.repository.AccountRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,10 +49,11 @@ public class AccountControllerTest {
     public static final String DEFAULT_CLIENT_ID = "user";
     public static final String OTHER_FIRST_ACCOUNT_NUMBER = "123456000";
     public static final String DEFAULT_FIRST_ACCOUNT_NAME = randomAlphabetic(10);
-    public static final String DEFAULT_CREDIT_CARD_NUMBER = "1234123412340001";
+    public static final String DEFAULT_CREDIT_CARD_NUMBER = "4701182211412210";
     public static final String DEFAULT_BENEFICIARY_NAME = "Dana";
     public static final String DEFAULT_USER = "user";
     public static final String DEFAULT_ADMINISTRATOR = "admin";
+    private static final String OTHER_CREDIT_CARD_NUMBER = "4701000011412210";
     private MockMvc restMockMvc;
 
     @Autowired
@@ -88,9 +91,9 @@ public class AccountControllerTest {
                 .setNumber(DEFAULT_FIRST_ACCOUNT_NUMBER);
         final BeneficiaryDTO beneficiary = new BeneficiaryDTO();
         beneficiary.setPercentage("80%");
-        beneficiary.setName("Alia");
+        beneficiary.setName("Florent");
         account.setBeneficiaries(singleton(beneficiary));
-        account.setCreditCards(singleton("0522220"));
+        account.setCreditCards(singleton(OTHER_CREDIT_CARD_NUMBER));
 
         this.restMockMvc.perform(MockMvcRequestBuilders.put("/api/v1/accounts")
                 .content(asJsonString(account))
@@ -106,10 +109,10 @@ public class AccountControllerTest {
                 () -> assertEquals(1, createdUser.getVersion()),
                 () -> assertFalse(createdUser.getCreditCards().isEmpty()),
                 () -> assertEquals(1, createdUser.getCreditCards().size()),
-                () -> assertEquals("0522220", createdUser.getCreditCards().stream().findFirst().get().getNumber()),
+                () -> assertEquals(OTHER_CREDIT_CARD_NUMBER, createdUser.getCreditCards().stream().findFirst().map(CreditCard::getNumber).get()),
                 () -> assertFalse(createdUser.getBeneficiaries().isEmpty()),
                 () -> assertEquals(1, createdUser.getBeneficiaries().size()),
-                () -> assertEquals("Alia", createdUser.getBeneficiaries().stream().findFirst().get().getName())
+                () -> assertEquals("Florent", createdUser.getBeneficiaries().stream().findFirst().map(Beneficiary::getName).get())
         );
         //Assertions.assertThat(createdUser.getBeneficiaries().stream().findFirst().get().getAllocationPercentage()).isEqualTo(new BigDecimal(100));
     }

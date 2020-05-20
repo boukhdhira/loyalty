@@ -36,14 +36,12 @@ public class Account implements Serializable {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    //Bidirectional association with one to many side as owner of association and non nullable foreign key
     @JoinColumn(name = "account_id", nullable = false, updatable = false)
-    //@JsonIgnoreProperties("account")
     private Set<Beneficiary> beneficiaries = new HashSet<>();
 
-    @OneToMany(cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "account_id", nullable = false, updatable = false)
     private Set<CreditCard> creditCards = new HashSet<>();
 

@@ -1,6 +1,7 @@
 package com.network.shopping.model;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "t_user")
+@Accessors(chain = true)
 @Data
 public class User implements Serializable {
 

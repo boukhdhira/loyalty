@@ -12,10 +12,10 @@ import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.singletonList;
-import static org.codehaus.groovy.runtime.InvokerHelper.asList;
 
 @Configuration
 @EnableSwagger2
@@ -56,7 +56,7 @@ public class SpringFoxConfig {
                         , "layalty.program@gmail.com"))
                 .license("Apache 2.0")
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
-                .version("0.0.2")
+                .version("0.0.3")
                 .build();
     }
 
@@ -74,7 +74,7 @@ public class SpringFoxConfig {
                 "global", "accessEverything");
         final AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
         authorizationScopes[0] = authorizationScope;
-        return asList(new SecurityReference("apiKey",
+        return Collections.singletonList(new SecurityReference("apiKey",
                 authorizationScopes));
     }
 }

@@ -28,4 +28,4 @@ services:
     depends_on:
       - database
 volumes:
-  db-data:
+  db-data: # named volumes can be managed easier using docker-compose

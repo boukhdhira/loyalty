@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 
 import javax.validation.Valid;
-
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import javax.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -99,8 +98,6 @@ public class UserController {
                 this.applicationName, "usersManagement.deleted", username)).build();
     }
 
-    //TODO: on peut developpeur un CRON job qui regenere des activations key si l'utilsateur n'as pas encore validé son enregistrement
-
     /**
      * {@code GET /activate} : Confirm account mail & activate account.
      *
@@ -110,10 +107,8 @@ public class UserController {
     @GetMapping("/activate")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Activate user account by token", notes = "token must be valid and not expired")
-    public void activateUserAccount(@RequestParam final String key) {
-        if (isEmpty(key)) {
-            throw new IllegalArgumentException("Activation key is invalid or broken!");
-        }
+    public void activateUserAccount(@Valid @NotBlank(message = "Activation key is invalid or broken!")
+                                    @RequestParam final String key) {
         this.userService.activateRegistration(key);
     }
 }

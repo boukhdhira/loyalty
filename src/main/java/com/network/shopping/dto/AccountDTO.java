@@ -1,6 +1,7 @@
 package com.network.shopping.dto;
 
-import com.network.shopping.service.utils.NotEmptyFields;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.network.shopping.service.utils.CreditCards;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -17,9 +18,10 @@ import static com.network.shopping.config.Constants.ACCOUNT_NUMBER_REGEX;
 @Data
 @Accessors(chain = true)
 @ApiModel(description = "All details about an account. ")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AccountDTO {
-    @ApiModelProperty(notes = "The account reattached list of credit card")
-    @NotEmptyFields(message = "Account must have at least one credit card")
+    @ApiModelProperty(notes = "The account reattached credit card list")
+    @CreditCards(message = "Account must have only a valid credit card")
     Set<String> creditCards = new HashSet<>();
     @ApiModelProperty(notes = "The account reattached list of beneficiaries")
     Set<BeneficiaryDTO> beneficiaries = new HashSet<>();
