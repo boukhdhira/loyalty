@@ -12,10 +12,12 @@ public final class Constants {
             "(?<jcb>(?:2131|1800|35[0-9]{3})[0-9]{11}))$";
     public static final int PASSWORD_MIN_LENGTH = 8;
     public static final int PASSWORD_MAX_LENGTH = 20;
-    public static final String ACTIVATION_KEY = "activationKey";
+    public static final String ACTIVATION_KEY = "key";
     public static final String DEFAULT_ACCOUNT_NAME = "LoyaltY";
     public static final int TOKEN_EXPIRATION_MINUTES = 30;
-    public static final String TOKEN_EXPIRATION = "tokenExpiration";
+    public static final int RENEWAL_TOKEN_EXPIRATION_HOURS = 24;
+    public static final String TOKEN_EXPIRATION = "delay";
+    public static final String ACTIVATION_URL = "baseUrl";
 
     //To disable the public one
     private Constants() {

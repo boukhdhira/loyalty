@@ -3,11 +3,11 @@ package com.network.shopping.service.impl;
 import com.network.shopping.common.property.MailProperties;
 import com.network.shopping.dto.MailRequest;
 import com.network.shopping.service.utils.MailContentBuilder;
+import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.lang.NonNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -38,21 +38,18 @@ public class MailClient {
 
     private final MailProperties mailProperties;
 
-    private final ResourceLoader resourceLoader;
-
     @Autowired
     public MailClient(final JavaMailSender mailSender, final MailContentBuilder mailContentBuilder
-            , final MailProperties mailProperties, final ResourceLoader resourceLoader) {
+            , final MailProperties mailProperties) {
         this.mailSender = mailSender;
         this.mailContentBuilder = mailContentBuilder;
         this.mailProperties = mailProperties;
-        this.resourceLoader = resourceLoader;
     }
 
     @Async
     public void prepareAndSendActivation(@NonNull final MailRequest mailRequest) throws MessagingException, IOException {
         final String recipientAddress = mailRequest.getRecipient();
-        if (isNull(recipientAddress)) {
+        if (StringUtils.isEmpty(recipientAddress)) {
             log.error("recipient address cannot be empty ");
             throw new IOException("Recipient address is empty");
         }

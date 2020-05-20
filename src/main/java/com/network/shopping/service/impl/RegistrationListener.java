@@ -14,11 +14,14 @@ import org.springframework.stereotype.Component;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 import static com.network.shopping.config.Constants.*;
+import static java.time.LocalDateTime.now;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Component
 @Slf4j
@@ -41,7 +44,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
     public void onApplicationEvent(final OnRegistrationCompleteEvent event) {
         final User user = event.getUser();
         final String token = UUID.randomUUID().toString();
-        this.createVerificationToken(user, token);
+        this.generateActivationToken(user, token);
         this.sendActivationMail(user, token);
         final AccountDTO account = this.accountService.createAccount(user.getUsername());
         log.debug("A new account was successfully created {}", account);
@@ -53,10 +56,15 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
      * @param user  user entity
      * @param token UUID token
      */
-    private void createVerificationToken(final User user, final String token) {
-        final ConfirmationToken confirmationToken = new ConfirmationToken(token, user);
+    private void generateActivationToken(final User user, final String token) {
+        final ConfirmationToken confirmationToken = new ConfirmationToken().setToken(token).setUser(user)
+                .setExpiryDate(this.fetchExpiryDate(now()));
         this.tokenRepository.save(confirmationToken);
         log.debug("Save confirmation token for user {}", user);
+    }
+
+    private LocalDateTime fetchExpiryDate(final LocalDateTime creationDate) {
+        return creationDate.plus(TOKEN_EXPIRATION_MINUTES, MINUTES);
     }
 
     /**
@@ -79,6 +87,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
         try {
             this.mailClient.prepareAndSendActivation(request);
         } catch (final MessagingException e) {
+            //Todo: implement retray michanism
             log.error("[email not sent] Invalid mail address {}", user.getEmail(), e);
         } catch (final IOException e) {
             log.error("[Technical error] Unable to load mail resources {}", e.getMessage());

@@ -16,11 +16,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Optional;
 
-import static com.network.shopping.config.Constants.TOKEN_EXPIRATION_MINUTES;
+import static java.time.LocalDateTime.now;
 
 @Service
 @Slf4j
@@ -88,25 +86,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public void activateRegistration(final String key) {
         final Optional<ConfirmationToken> tokenRecord = this.tokenRepository.findByToken(key);
-        final User user = tokenRecord.map(token -> {
-            if (this.isExpired(token)) {
+        final User user = tokenRecord.map(data -> {
+            if (this.isExpired(data)) {
+                this.userRepository.save(data.getUser().setCredentialsExpired(true));
                 throw new DataIntegrityViolationException("Token was expired");
             }
-            return token.getUser();
+            return data.getUser();
         }).orElseThrow(() -> new IllegalArgumentException("Invalid activation key"));
         user.setEnabled(true);
         this.userRepository.save(user);
-        log.debug("user is enabled now {}", user);
+        log.debug("account is now enable for user {}", user);
     }
 
     private boolean isExpired(final ConfirmationToken token) {
-        return this.calculateExpiryDate(token.getCreatedDate()).before(new Date());
-    }
-
-    private Date calculateExpiryDate(final Date creationDate) {
-        final Calendar cal = Calendar.getInstance();
-        cal.setTime(creationDate);
-        cal.add(Calendar.MINUTE, TOKEN_EXPIRATION_MINUTES);
-        return new Date(cal.getTime().getTime());
+        return token.getExpiryDate().isBefore(now());
     }
 }

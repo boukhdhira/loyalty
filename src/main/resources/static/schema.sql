@@ -52,7 +52,7 @@ create table if not exists t_user (
     enabled boolean
 );
 
-create table if not exists t_role(
+create table if not exists t_role (
     id numeric(1) primary key,
     name varchar(20) not null
 );
@@ -62,3 +62,11 @@ create table if not exists user_roles (
     role_id bigint REFERENCES t_role (id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, role_id)
 );
+
+create table if not exists t_confirmation_token (
+    id serial primary key,
+    user_id integer REFERENCES t_user (id) ON DELETE CASCADE,
+    token varchar(36) unique not null ,
+    creation_date timestamp not null,
+    expiry_date timestamp not null
+ );

@@ -15,7 +15,7 @@
 
         <listeners>
             <listener>
-                <class>com.network.shopping.config.CacheLogger</class>
+                <class>com.network.shopping.service.utils.CacheLogger</class>
                 <event-firing-mode>ASYNCHRONOUS</event-firing-mode>
                 <event-ordering-mode>ORDERED</event-ordering-mode>
                 <events-to-fire-on>CREATED</events-to-fire-on>

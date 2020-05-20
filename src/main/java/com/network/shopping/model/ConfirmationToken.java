@@ -2,10 +2,14 @@ package com.network.shopping.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
+
+import static java.time.LocalDateTime.now;
+import static javax.persistence.FetchType.EAGER;
 
 /**
  * nullable = false on the User to ensure data integrity and consistency in the
@@ -14,24 +18,27 @@ import java.util.Date;
 @Entity
 @Data
 @NoArgsConstructor
+@Table(name = "t_confirmation_token")
+@Accessors(chain = true)
 public class ConfirmationToken implements Serializable {
     private static final long serialVersionUID = 227819352036922211L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "serial")
     private Long id;
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = User.class, fetch = EAGER)
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    //@Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "creation_date", nullable = false)
     // @CreatedDate => for audit
-    private Date createdDate = new Date();
-    @Column(nullable = false, unique = true)
-    private String token;
+    private LocalDateTime createdDate = now();
 
-    public ConfirmationToken(final String token, final User user) {
-        this.token = token;
-        this.user = user;
-    }
+    //@Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "expiry_date", nullable = false)
+    private LocalDateTime expiryDate;
+
+    @Column(nullable = false, unique = true, length = 36)
+    private String token;
 }

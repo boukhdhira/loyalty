@@ -1,4 +1,4 @@
-package com.network.shopping.config;
+package com.network.shopping.service.utils;
 
 import com.network.shopping.model.Account;
 import lombok.extern.slf4j.Slf4j;

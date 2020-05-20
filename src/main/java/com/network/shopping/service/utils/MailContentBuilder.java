@@ -6,9 +6,10 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import static com.network.shopping.config.Constants.ACTIVATION_URL;
+
 @Service
 public class MailContentBuilder {
-    public static final String ACTIVATION_URL = "activationUrl";
     private final TemplateEngine templateEngine;
 
     @Autowired
