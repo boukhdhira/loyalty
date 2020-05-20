@@ -56,7 +56,7 @@ public class SpringFoxConfig {
                         , "layalty.program@gmail.com"))
                 .license("Apache 2.0")
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
-                .version("0.0.2")
+                .version("0.0.3")
                 .build();
     }
 

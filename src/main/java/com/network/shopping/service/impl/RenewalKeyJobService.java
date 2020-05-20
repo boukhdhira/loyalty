@@ -7,7 +7,6 @@ import com.network.shopping.repository.ConfirmationTokenRepository;
 import com.network.shopping.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +37,8 @@ public class RenewalKeyJobService {
 
     /**
      * second, minute, hour, day, month, weekday: cron pattern
+     * Usage <b>@Async</b>: the method needs to be public so that it can be proxied. And self-invocation doesn't work because it
+     * bypasses the proxy and calls the underlying method directly.
      */
     @Scheduled(cron = "0 0 0 * * *")
     public void job() {
@@ -68,7 +69,7 @@ public class RenewalKeyJobService {
      * @param user  user information
      * @param token renewal token
      */
-    @Async
+    //@Async
     private void sendActivationMail(final User user, final String token) {
         final MailRequest request = new MailRequest();
         request.setRecipient(user.getEmail());
